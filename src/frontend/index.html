@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberArcade - Learn Cybersecurity Through Gaming</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    </head>
+    <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>CyberArcade</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#learn" class="nav-link">Learn</a>
+                <a href="#games" class="nav-link">Games</a>
+                <a href="#progress" class="nav-link">Progress</a>
+            </div>
+            <div class="nav-user">
+                <div class="user-level">
+                    <i class="fas fa-star"></i>
+                    <span id="userLevel">Level 1</span>
+                </div>
+                <div class="user-points">
+                    <i class="fas fa-coins"></i>
+                    <span id="userPoints">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <span class="gradient-text">Master Cybersecurity</span>
+                        <br>Through Gaming
+            </h1>
+                    <p class="hero-subtitle">
+                        Learn essential cybersecurity skills through interactive games, 
+                        challenges, and real-world scenarios. Turn education into an adventure!
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" onclick="showSection('learn')">
+                            <i class="fas fa-graduation-cap"></i>
+                            Start Learning
+                        </button>
+                        <button class="btn btn-secondary" onclick="showSection('games')">
+                            <i class="fas fa-gamepad"></i>
+                            Play Games
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="cyber-grid">
+                        <div class="grid-item"></div>
+                        <div class="grid-item"></div>
+                        <div class="grid-item"></div>
+                        <div class="grid-item"></div>
+                        <div class="grid-item"></div>
+                        <div class="grid-item"></div>
+                        <div class="grid-item"></div>
+                        <div class="grid-item"></div>
+                        <div class="grid-item"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalBadges">0</h3>
+                        <p>Badges Earned</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="streakDays">0</h3>
+                        <p>Day Streak</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalTime">0h</h3>
+                        <p>Learning Time</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learn Section -->
+        <section id="learn" class="section">
+            <div class="section-header">
+                <h2>Learning Modules</h2>
+                <p>Build your cybersecurity foundation with interactive lessons</p>
+            </div>
+
+            <div class="learning-modules">
+                <div class="module-card" data-module="passwords">
+                    <div class="module-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="module-content">
+                        <h3>Password Security</h3>
+                        <p>Learn to create strong passwords and protect your accounts</p>
+                        <div class="module-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0% Complete</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-module" onclick="openModule('passwords')">
+                        <i class="fas fa-play"></i>
+                        Start
+                    </button>
+                </div>
+
+                <div class="module-card" data-module="phishing">
+                    <div class="module-icon">
+                        <i class="fas fa-fish"></i>
+                    </div>
+                    <div class="module-content">
+                        <h3>Phishing Recognition</h3>
+                        <p>Identify and avoid phishing attacks and scams</p>
+                        <div class="module-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0% Complete</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-module" onclick="openModule('phishing')">
+                        <i class="fas fa-play"></i>
+                        Start
+                    </button>
+                </div>
+
+                <div class="module-card" data-module="browsing">
+                    <div class="module-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="module-content">
+                        <h3>Secure Browsing</h3>
+                        <p>Navigate the internet safely and protect your privacy</p>
+                        <div class="module-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0% Complete</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-module" onclick="openModule('browsing')">
+                        <i class="fas fa-play"></i>
+                        Start
+                    </button>
+                </div>
+
+                <div class="module-card" data-module="encryption">
+                    <div class="module-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="module-content">
+                        <h3>Encryption Basics</h3>
+                        <p>Understand how encryption protects your data</p>
+                        <div class="module-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0% Complete</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-module" onclick="openModule('encryption')">
+                        <i class="fas fa-play"></i>
+                        Start
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Games Section -->
+        <section id="games" class="section">
+            <div class="section-header">
+                <h2>Game Center</h2>
+                <p>Test your knowledge through interactive games and challenges</p>
+            </div>
+
+            <div class="games-grid">
+                <div class="game-card" data-game="snake-ladder">
+                    <div class="game-image">
+                        <i class="fas fa-dice"></i>
+                    </div>
+                    <div class="game-content">
+                        <h3>Cyber Snake & Ladder</h3>
+                        <p>Navigate through cybersecurity challenges in this classic board game</p>
+                        <div class="game-stats">
+                            <span class="difficulty">Easy</span>
+                            <span class="duration">10-15 min</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-game" onclick="startGame('snake-ladder')">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                </div>
+
+                <div class="game-card" data-game="capture-the-flag">
+                    <div class="game-image">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div class="game-content">
+                        <h3>Capture The Flag (CTF)</h3>
+                        <p>15+ Professional hacking challenges across 6 categories</p>
+                        <div class="game-stats">
+                            <span class="difficulty">Expert</span>
+                            <span class="duration">60+ min</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-game" onclick="startGame('capture-the-flag')">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                </div>
+
+
+
+                <div class="game-card" data-game="caesar-cipher">
+                    <div class="game-image">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="game-content">
+                        <h3>Caesar Cipher</h3>
+                        <p>Learn encryption by mastering the Caesar cipher</p>
+                        <div class="game-stats">
+                            <span class="difficulty">Medium</span>
+                            <span class="duration">10-15 min</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-game" onclick="startGame('caesar-cipher')">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                </div>
+
+                <div class="game-card" data-game="network-scanner">
+                    <div class="game-image">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div class="game-content">
+                        <h3>Network Security Scanner</h3>
+                        <p>Professional network vulnerability scanning tool</p>
+                        <div class="game-stats">
+                            <span class="difficulty">Advanced</span>
+                            <span class="duration">10-15 min</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-game" onclick="startGame('network-scanner')">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                </div>
+
+                <div class="game-card" data-game="password-cracker">
+                    <div class="game-image">
+                        <i class="fas fa-unlock-alt"></i>
+                    </div>
+                    <div class="game-content">
+                        <h3>Password Cracking Simulator</h3>
+                        <p>Demonstrate password vulnerability through realistic simulation</p>
+                        <div class="game-stats">
+                            <span class="difficulty">Medium</span>
+                            <span class="duration">5-10 min</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-game" onclick="startGame('password-cracker')">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                </div>
+
+                <div class="game-card" data-game="malware-analysis">
+                    <div class="game-image">
+                        <i class="fas fa-bug"></i>
+                    </div>
+                    <div class="game-content">
+                        <h3>Malware Analysis Lab</h3>
+                        <p>Interactive malware analysis with static and dynamic techniques</p>
+                        <div class="game-stats">
+                            <span class="difficulty">Expert</span>
+                            <span class="duration">15-20 min</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-game" onclick="startGame('malware-analysis')">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                </div>
+
+                <div class="game-card" data-game="social-engineering">
+                    <div class="game-image">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <div class="game-content">
+                        <h3>Social Engineering Simulator</h3>
+                        <p>Test your ability to identify social engineering attacks</p>
+                        <div class="game-stats">
+                            <span class="difficulty">Medium</span>
+                            <span class="duration">8-12 min</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-game" onclick="startGame('social-engineering')">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                </div>
+
+                <div class="game-card" data-game="incident-response">
+                    <div class="game-image">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="game-content">
+                        <h3>Incident Response Simulator</h3>
+                        <p>Handle real-time cybersecurity incidents like a professional</p>
+                        <div class="game-stats">
+                            <span class="difficulty">Expert</span>
+                            <span class="duration">20-25 min</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-game" onclick="startGame('incident-response')">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Section -->
+        <section id="progress" class="section">
+            <div class="section-header">
+                <h2>Your Progress</h2>
+                <p>Track your learning journey and achievements</p>
+            </div>
+
+            <div class="progress-dashboard">
+                <div class="progress-overview">
+                    <div class="overview-card">
+                        <h3>Learning Streak</h3>
+                        <div class="streak-display">
+                            <i class="fas fa-fire"></i>
+                            <span id="currentStreak">0</span>
+                            <span>days</span>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Total Points</h3>
+                        <div class="points-display">
+                            <i class="fas fa-coins"></i>
+                            <span id="totalPoints">0</span>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <h3>Level</h3>
+                        <div class="level-display">
+                            <i class="fas fa-star"></i>
+                            <span id="currentLevel">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievements">
+                    <h3>Recent Achievements</h3>
+                    <div class="achievement-list" id="achievementList">
+                        <div class="achievement-item locked">
+                            <i class="fas fa-trophy"></i>
+                            <span>First Steps - Complete your first lesson</span>
+                        </div>
+                        <div class="achievement-item locked">
+                            <i class="fas fa-gamepad"></i>
+                            <span>Game Master - Play 5 different games</span>
+                        </div>
+                        <div class="achievement-item locked">
+                            <i class="fas fa-fire"></i>
+                            <span>Streak Master - 7-day learning streak</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Game Modal -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="gameTitle">Game Title</h3>
+                <button class="close-btn" onclick="closeGame()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="gameContainer">
+                <!-- Game content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning Module Modal -->
+    <div id="moduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="moduleTitle">Module Title</h3>
+                <button class="close-btn" onclick="closeModule()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="moduleContainer">
+                <!-- Module content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    </body>
+</html>

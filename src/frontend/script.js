@@ -1,6 +1,9 @@
 // Global state management
 const appState = {
     currentUser: {
+        id: null,
+        username: null,
+        user_type: null,
         level: 1,
         points: 0,
         badges: 0,
@@ -9,8 +12,66 @@ const appState = {
         achievements: []
     },
     currentSection: 'home',
+    currentAudience: 'student', // student | enterprise | itpro | parent
     gameInstances: {},
-    moduleInstances: {}
+    moduleInstances: {},
+    isAuthenticated: false
+};
+
+// User-type config: Student, Digital Citizen, IT Pro, Parental Guide (games mapping; modules are from API)
+const AUDIENCE_CONFIG = {
+    student: {
+        name: 'Student',
+        gamesSectionTitle: 'Games for Learners',
+        gamesSectionSubtitle: 'Fun ways to learn online safety and spot scams.',
+        heroSubtitle: 'Learn to stay safe online with content made for students. Spot fake messages, keep your accounts safe, and browse the web without getting tricked.',
+        gameIds: ['snake-ladder', 'phishing-detective', 'caesar-cipher', 'security-quiz', 'spot-the-threat']
+    },
+    digital_citizen: {
+        name: 'Digital Citizen',
+        gamesSectionTitle: 'Games for Digital Citizens',
+        gamesSectionSubtitle: 'Practice spotting scams and protecting your identity in everyday life.',
+        heroSubtitle: 'Stay safe as you work, shop, and browse. Learn to recognize scams, protect your logins, and keep your privacy in check.',
+        gameIds: ['phishing-detective', 'social-engineering', 'spot-the-threat', 'incident-response', 'password-cracker']
+    },
+    enterprise: {
+        name: 'Digital Citizen',
+        gamesSectionTitle: 'Games for Digital Citizens',
+        gamesSectionSubtitle: 'Practice spotting scams and protecting your identity in everyday life.',
+        heroSubtitle: 'Stay safe as you work, shop, and browse. Learn to recognize scams, protect your logins, and keep your privacy in check.',
+        gameIds: ['phishing-detective', 'social-engineering', 'spot-the-threat', 'incident-response', 'password-cracker']
+    },
+    itpro: {
+        name: 'IT Professional',
+        gamesSectionTitle: 'Security Lab',
+        gamesSectionSubtitle: 'CTF, network scanning, and incident response for practitioners.',
+        heroSubtitle: 'Hands-on challenges for IT and security professionals. Sharpen skills with CTF, network assessment, and incident response.',
+        gameIds: ['capture-the-flag', 'network-scanner', 'malware-analysis', 'incident-response', 'password-cracker', 'caesar-cipher']
+    },
+    parent: {
+        name: 'Parental Guide',
+        gamesSectionTitle: 'Games Your Child Can Play',
+        gamesSectionSubtitle: 'Same learner-friendly games, so you can play along and guide them.',
+        heroSubtitle: 'See what your child is learning and how you can support them. Same modules and games, with a parent’s perspective.',
+        gameIds: ['snake-ladder', 'phishing-detective', 'security-quiz', 'spot-the-threat']
+    }
+};
+
+// Game metadata for rendering cards. Games are distinct: Phishing Detective = messages/channels;
+// Social Engineering = broader scenarios (pretexting, tailgating); Spot the Threat = visual/UI.
+// Security Quiz and Snake & Ladder use separate question sets (no repeating content).
+const GAME_META = {
+    'snake-ladder': { title: 'Cyber Snake & Ladder', description: 'Navigate through cybersecurity challenges in this classic board game', icon: 'fa-dice', difficulty: 'Easy', duration: '10-15 min' },
+    'phishing-detective': { title: 'Phishing Detective', description: 'Identify phishing in emails, WhatsApp, websites, and more', icon: 'fa-envelope-open-text', difficulty: 'Medium', duration: '15-20 min' },
+    'social-engineering': { title: 'Social Engineering Simulator', description: 'Recognize pretexting, tailgating, and other social engineering tactics', icon: 'fa-user-secret', difficulty: 'Medium', duration: '8-12 min' },
+    'caesar-cipher': { title: 'Caesar Cipher', description: 'Learn encryption by mastering the Caesar cipher', icon: 'fa-code', difficulty: 'Medium', duration: '10-15 min' },
+    'security-quiz': { title: 'Security Quiz Challenge', description: 'Test your cybersecurity knowledge with interactive quizzes', icon: 'fa-question-circle', difficulty: 'Medium', duration: '10-15 min' },
+    'spot-the-threat': { title: 'Spot the Threat', description: 'Visual threat detection – identify security risks in UI and scenarios', icon: 'fa-search', difficulty: 'Medium', duration: '12-18 min' },
+    'incident-response': { title: 'Incident Response Simulator', description: 'Handle real-time cybersecurity incidents like a professional', icon: 'fa-exclamation-triangle', difficulty: 'Expert', duration: '20-25 min' },
+    'password-cracker': { title: 'Password Cracking Simulator', description: 'See how weak passwords are cracked; build better password habits', icon: 'fa-unlock-alt', difficulty: 'Medium', duration: '5-10 min' },
+    'capture-the-flag': { title: 'Capture The Flag (CTF)', description: 'Professional security challenges: crypto, web, forensics, reverse, pwn, stego', icon: 'fa-flag', difficulty: 'Expert', duration: '60+ min' },
+    'network-scanner': { title: 'Network Security Scanner', description: 'Simulated network assessments and vulnerability scenarios', icon: 'fa-network-wired', difficulty: 'Expert', duration: '15-25 min' },
+    'malware-analysis': { title: 'Malware Analysis Lab', description: 'Simulated static and dynamic malware analysis', icon: 'fa-bug', difficulty: 'Expert', duration: '20-30 min' }
 };
 
 // Registry for modular game definitions
@@ -18,19 +79,237 @@ window.CyberArcadeGames = window.CyberArcadeGames || {};
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-    loadUserProgress();
+    checkAuth();
     setupEventListeners();
 });
 
-// Initialize app components
+// Check authentication on load
+function checkAuth() {
+    fetch('/api/auth/me', { credentials: 'include' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.user) {
+                appState.isAuthenticated = true;
+                appState.currentUser = { ...appState.currentUser, ...data.user };
+                appState.currentAudience = data.user.user_type || 'student';
+                initializeApp();
+            } else {
+                showLogin();
+            }
+        })
+        .catch(() => {
+            showLogin();
+        });
+}
+
+// Initialize app components (after auth)
 function initializeApp() {
+    setAudience(appState.currentAudience);
+    loadUserProgress();
     updateUserDisplay();
     showSection('home');
-    loadLearningPaths();
-    loadCareerRoadmap();
     loadTodaysSecurityTip();
     loadSecurityChecklist();
+    loadLearningModules();
+    renderGamesGrid();
+    updateHeroForAudience();
+    updateNavForUserType();
+}
+
+// Make functions globally accessible
+window.showLogin = showLogin;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.logout = logout;
+window.showLoginForm = showLoginForm;
+window.showRegisterForm = showRegisterForm;
+
+// Auth functions
+function showLogin() {
+    document.getElementById('navAuth').style.display = 'flex';
+    document.getElementById('navMenu').style.display = 'none';
+    document.getElementById('navUser').style.display = 'none';
+    showSection('login');
+}
+
+function handleLogin() {
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    
+    fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username: username, password: password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            appState.isAuthenticated = true;
+            appState.currentUser = { ...appState.currentUser, ...data.user };
+            appState.currentAudience = data.user.user_type || 'student';
+            initializeApp();
+            showSection('home');
+        } else {
+            errorEl.textContent = data.error || 'Login failed';
+        }
+    })
+    .catch(error => {
+        errorEl.textContent = 'Error: ' + error.message;
+    });
+}
+
+function handleRegister() {
+    const username = document.getElementById('regUsername').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const userType = document.getElementById('regUserType').value;
+    const errorEl = document.getElementById('registerError');
+    
+    fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username: username, email: email, password: password, user_type: userType })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            checkAuth(); // Will login automatically
+        } else {
+            errorEl.textContent = data.error || 'Registration failed';
+        }
+    })
+    .catch(error => {
+        errorEl.textContent = 'Error: ' + error.message;
+    });
+}
+
+function logout() {
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+        .then(() => {
+            appState.isAuthenticated = false;
+            appState.currentUser = { id: null, username: null, user_type: null, level: 1, points: 0, badges: 0, streak: 0, totalTime: 0, achievements: [] };
+            showLogin();
+        });
+}
+
+function showLoginForm() {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+    document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.login-tab')[0].classList.add('active');
+}
+
+function showRegisterForm() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+    document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.login-tab')[1].classList.add('active');
+}
+
+function updateNavForUserType() {
+    if (appState.currentUser.user_type === 'parent') {
+        document.getElementById('parentalLink').style.display = 'block';
+    }
+    document.getElementById('navAuth').style.display = 'none';
+    document.getElementById('navMenu').style.display = 'flex';
+    document.getElementById('navUser').style.display = 'flex';
+    document.getElementById('userName').textContent = appState.currentUser.username || 'User';
+    const typeBadge = document.getElementById('userType');
+    var ut = appState.currentUser.user_type || 'student';
+    typeBadge.textContent = ut === 'digital_citizen' ? 'Digital Citizen' : ut === 'itpro' ? 'IT Pro' : ut === 'parent' ? 'Parental Guide' : 'Student';
+    typeBadge.className = 'user-type-badge ' + (ut === 'enterprise' ? 'digital_citizen' : ut);
+}
+
+function setAudience(audienceId) {
+    if (!AUDIENCE_CONFIG[audienceId]) return;
+    appState.currentAudience = audienceId;
+    localStorage.setItem('cyberArcadeAudience', audienceId);
+    document.querySelectorAll('.audience-tab').forEach(function (tab) {
+        tab.classList.toggle('active', tab.getAttribute('data-audience') === audienceId);
+    });
+    var titleEl = document.getElementById('gamesSectionTitle');
+    var subtitleEl = document.getElementById('gamesSectionSubtitle');
+    if (titleEl) titleEl.textContent = AUDIENCE_CONFIG[audienceId].gamesSectionTitle;
+    if (subtitleEl) subtitleEl.textContent = AUDIENCE_CONFIG[audienceId].gamesSectionSubtitle;
+}
+
+function renderGamesGrid() {
+    var grid = document.getElementById('gamesGrid');
+    if (!grid) return;
+    // Use user_type from logged-in user; map enterprise -> digital_citizen
+    var audience = appState.currentUser.user_type || appState.currentAudience;
+    if (audience === 'enterprise') audience = 'digital_citizen';
+    var gameIds = (AUDIENCE_CONFIG[audience] && AUDIENCE_CONFIG[audience].gameIds) ? AUDIENCE_CONFIG[audience].gameIds : AUDIENCE_CONFIG.student.gameIds;
+    grid.innerHTML = gameIds.map(function (gameId) {
+        var meta = GAME_META[gameId];
+        if (!meta) return '';
+        return '<div class="game-card" data-game="' + gameId + '">' +
+            '<div class="game-image"><i class="fas ' + meta.icon + '"></i></div>' +
+            '<div class="game-content">' +
+            '<h3>' + meta.title + '</h3>' +
+            '<p>' + meta.description + '</p>' +
+            '<div class="game-stats">' +
+            '<span class="difficulty">' + meta.difficulty + '</span>' +
+            '<span class="duration">' + meta.duration + '</span>' +
+            '</div></div>' +
+            '<button class="btn btn-game" onclick="startGame(\'' + gameId + '\')"><i class="fas fa-play"></i> Play</button>' +
+            '</div>';
+    }).join('');
+}
+
+function updateHeroForAudience() {
+    var audience = appState.currentUser.user_type || appState.currentAudience;
+    if (audience === 'enterprise') audience = 'digital_citizen';
+    var config = AUDIENCE_CONFIG[audience];
+    var sub = document.querySelector('.hero-subtitle');
+    if (sub && config) sub.textContent = config.heroSubtitle;
+}
+
+function setupAudienceTabs() {
+    // Audience tabs removed - now using user_type from login
+}
+
+function loadLearningModules() {
+    fetch('/api/learning/modules', { credentials: 'include' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.modules) {
+                renderModulesGrid(data.modules);
+                if (appState.currentUser.user_type === 'parent') {
+                    renderParentalModules(data.modules);
+                }
+            }
+        })
+        .catch(error => console.error('Error loading modules:', error));
+}
+
+function renderModulesGrid(modules) {
+    const grid = document.getElementById('modulesGrid');
+    if (!grid) return;
+    grid.innerHTML = modules.map(module => `
+        <div class="module-card" onclick="openModule('${module.id}')">
+            <div class="module-icon"><i class="fas ${module.icon}"></i></div>
+            <h3>${module.title}</h3>
+            <p>${module.description}</p>
+            <button class="btn btn-primary">Start Learning</button>
+        </div>
+    `).join('');
+}
+
+function renderParentalModules(modules) {
+    const grid = document.getElementById('parentalModulesGrid');
+    if (!grid) return;
+    grid.innerHTML = modules.map(module => `
+        <div class="module-card">
+            <div class="module-icon"><i class="fas ${module.icon}"></i></div>
+            <h3>${module.title}</h3>
+            <p>${module.description}</p>
+            <p style="color: #00ffff; font-size: 0.9rem;">Your child can access this module</p>
+        </div>
+    `).join('');
 }
 
 // Load and display career roadmap
@@ -432,30 +711,45 @@ function startPathModule(pathId, moduleIndex) {
         });
 }
 
-// Load user progress from localStorage
+// Load user progress from backend (after login)
 function loadUserProgress() {
-    const savedProgress = localStorage.getItem('cyberArcadeProgress');
-    if (savedProgress) {
-        appState.currentUser = { ...appState.currentUser, ...JSON.parse(savedProgress) };
-        updateUserDisplay();
-    }
+    if (!appState.isAuthenticated) return;
+    fetch('/api/user/progress', { credentials: 'include' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.user) {
+                appState.currentUser = { ...appState.currentUser, ...data.user };
+                updateUserDisplay();
+            }
+        })
+        .catch(error => console.error('Error loading progress:', error));
 }
 
-// Save user progress to localStorage
+// Save user progress to localStorage (legacy, now using backend)
 function saveUserProgress() {
-    localStorage.setItem('cyberArcadeProgress', JSON.stringify(appState.currentUser));
+    // Progress now saved to backend via API
 }
 
 // Update user display elements
 function updateUserDisplay() {
-    document.getElementById('userLevel').textContent = `Level ${appState.currentUser.level}`;
-    document.getElementById('userPoints').textContent = appState.currentUser.points;
-    document.getElementById('totalBadges').textContent = appState.currentUser.badges;
-    document.getElementById('streakDays').textContent = appState.currentUser.streak;
-    document.getElementById('totalTime').textContent = `${appState.currentUser.totalTime}h`;
-    document.getElementById('currentStreak').textContent = appState.currentUser.streak;
-    document.getElementById('totalPoints').textContent = appState.currentUser.points;
-    document.getElementById('currentLevel').textContent = appState.currentUser.level;
+    if (!appState.isAuthenticated) return;
+    const u = appState.currentUser;
+    const levelEl = document.getElementById('userLevel');
+    const pointsEl = document.getElementById('userPoints');
+    if (levelEl) levelEl.textContent = `Level ${u.level || 1}`;
+    if (pointsEl) pointsEl.textContent = u.points || 0;
+    const badgesEl = document.getElementById('totalBadges');
+    const streakEl = document.getElementById('streakDays');
+    const timeEl = document.getElementById('totalTime');
+    if (badgesEl) badgesEl.textContent = u.badges || 0;
+    if (streakEl) streakEl.textContent = u.streak || 0;
+    if (timeEl) timeEl.textContent = `${u.totalTime || 0}h`;
+    const currentStreakEl = document.getElementById('currentStreak');
+    const totalPointsEl = document.getElementById('totalPoints');
+    const currentLevelEl = document.getElementById('currentLevel');
+    if (currentStreakEl) currentStreakEl.textContent = u.streak || 0;
+    if (totalPointsEl) totalPointsEl.textContent = u.points || 0;
+    if (currentLevelEl) currentLevelEl.textContent = u.level || 1;
 }
 
 // Setup event listeners
@@ -525,6 +819,27 @@ function updateActiveNavLink(activeLink) {
     });
     activeLink.classList.add('active');
 }
+
+// Submit game result to backend (MySQL)
+window.submitGameResult = function(gameType, score, duration) {
+    fetch(`/api/game/${gameType}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: score, duration: duration || 0 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Game result saved to database:', data);
+        // Update local state with backend response
+        if (data.total_points !== undefined) {
+            appState.currentUser.points = data.total_points;
+            updateUserDisplay();
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting game result:', error);
+    });
+};
 
 // Add points to user
 function addPoints(points) {
@@ -611,8 +926,28 @@ function showAchievementNotification(title, description) {
     }, 3000);
 }
 
+// Awareness module IDs (content loaded from API)
+const AWARENESS_MODULE_IDS = ['student_awareness', 'digital_citizen_awareness', 'itpro_awareness'];
+
 // Open learning module
 function openModule(moduleName) {
+    if (AWARENESS_MODULE_IDS.includes(moduleName)) {
+        fetch(`/api/learning/${moduleName}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Module load error:', data.error);
+                    return;
+                }
+                document.getElementById('moduleTitle').textContent = data.title || 'Learning Module';
+                document.getElementById('moduleContainer').innerHTML = buildAwarenessModuleHTML(data);
+                document.getElementById('moduleModal').style.display = 'block';
+            })
+            .catch(err => {
+                console.error('Error loading awareness module:', err);
+            });
+        return;
+    }
     const moduleData = getModuleData(moduleName);
     if (!moduleData) return;
     
@@ -624,6 +959,47 @@ function openModule(moduleName) {
     if (moduleData.init) {
         moduleData.init();
     }
+}
+
+// Build HTML for structured awareness module (API response). Learning-only: no quizzes.
+function buildAwarenessModuleHTML(data) {
+    const c = data.content || {};
+    const sections = c.sections || [];
+    const keyTakeaways = c.key_takeaways || data.key_takeaways || [];
+    let html = '<div class="module-content awareness-module">';
+    html += '<p class="target-audience">' + escapeHtml(data.target_audience || '') + '</p>';
+    html += '<p class="learning-objective">' + escapeHtml(data.learning_objective || '') + '</p>';
+    sections.forEach((sec) => {
+        html += '<div class="lesson-section awareness-section">';
+        html += '<h3>' + escapeHtml(sec.section_title || '') + '</h3>';
+        html += '<p>' + escapeHtml(sec.concept_explanation || '') + '</p>';
+        if (sec.real_world_example) {
+            html += '<div class="real-world-example">';
+            html += '<h4>Real-world example</h4><p>' + escapeHtml(sec.real_world_example) + '</p></div>';
+        }
+        if (sec.how_attack_works) html += '<p><strong>How the attack works:</strong> ' + escapeHtml(sec.how_attack_works) + '</p>';
+        if (sec.warning_signs) html += '<p><strong>Warning signs:</strong> ' + escapeHtml(sec.warning_signs) + '</p>';
+        if (sec.how_to_prevent) html += '<p><strong>How to prevent it:</strong> ' + escapeHtml(sec.how_to_prevent) + '</p>';
+        html += '</div>';
+    });
+    const riskScoreLogic = c.risk_score_logic || data.risk_score_logic;
+    if (riskScoreLogic) {
+        html += '<div class="lesson-section"><h4>Personal risk awareness</h4><p>' + escapeHtml(riskScoreLogic) + '</p></div>';
+    }
+    if (keyTakeaways.length) {
+        html += '<div class="lesson-section key-takeaways"><h4>Key takeaways</h4><ul>';
+        keyTakeaways.forEach(t => { html += '<li>' + escapeHtml(t) + '</li>'; });
+        html += '</ul></div>';
+    }
+    html += '</div>';
+    return html;
+}
+
+function escapeHtml(text) {
+    if (text == null) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Close learning module
@@ -1281,20 +1657,10 @@ const gameContext = {
         realWorldImpact: 'Security analysts who can analyze malware quickly can stop attacks before they spread.',
         quickTip: 'Always analyze malware in a safe, isolated environment - never on your main computer!'
     },
-    'phishing-detective': {
-        whyMatters: 'Phishing is the #1 cyber threat. 91% of successful data breaches start with a phishing email.',
-        realWorldImpact: 'A single phishing email can compromise an entire company\'s network in minutes.',
-        quickTip: 'Check the sender\'s email address carefully - attackers often use similar-looking domains.'
-    },
-    'security-quiz': {
-        whyMatters: 'Testing your knowledge helps you identify gaps in your cybersecurity awareness.',
-        realWorldImpact: 'People who regularly test their security knowledge are 3x less likely to fall for scams.',
-        quickTip: 'Review wrong answers carefully - they show areas where you need more awareness.'
-    },
-    'spot-the-threat': {
-        whyMatters: 'Visual threat detection helps you recognize suspicious activity in real-time.',
-        realWorldImpact: 'Quick threat recognition can prevent data breaches and save companies millions.',
-        quickTip: 'Look for unusual patterns - legitimate activity follows predictable patterns.'
+    'network-scanner': {
+        whyMatters: 'Network security scanning helps find vulnerabilities before attackers do. Essential for security professionals.',
+        realWorldImpact: 'Regular scans and patching reduce breach risk by up to 80% in enterprise environments.',
+        quickTip: 'Always get authorization before scanning any network - unauthorized scanning is illegal.'
     }
 };
 

@@ -13,10 +13,15 @@ A comprehensive, gamified cybersecurity education platform that combines interac
 - **Incident Response Simulator** - Professional incident handling
 - **Snake & Ladder** - 50+ cybersecurity questions
 
+### 👥 **Audience Modes**
+- **Student** – Learners: Snake & Ladder, Phishing Detective, Caesar Cipher, Security Quiz, Spot the Threat
+- **Enterprise** – Employees: Phishing Detective, Social Engineering, Spot the Threat, Incident Response, Password Cracker
+- **IT Professional** – Security practitioners: **CTF** (flagship), Network Scanner, Malware Analysis, Incident Response, Password Cracker, Caesar Cipher
+
 ### 🏗️ **Architecture**
-- **Frontend**: Modern HTML5, CSS3, JavaScript
-- **Backend**: Flask (Python)
-- **Database**: SQLite
+- **Frontend**: HTML5, CSS3, JavaScript (main app); optional **React** app in `src/frontend-react/`
+- **Backend**: Flask (Python); **Active Directory** and **API** integration stubs under `/api/integrations/`
+- **Database**: SQLite (default); see `ARCHITECTURE.md` for PostgreSQL path
 - **Design**: Responsive, cyber-themed UI
 
 ## 🚀 Quick Start
@@ -88,10 +93,12 @@ CyberArcade/
 
 ## 🎯 Target Audience
 
-- **Students**: Learning cybersecurity fundamentals
-- **Professionals**: Skill development and training
-- **Companies**: Employee security awareness training
-- **Educators**: Interactive teaching tool
+Use the **audience tabs** in the nav (Student | Enterprise | IT Pro) to switch persona; games and messaging adapt automatically.
+
+- **Students**: Learning cybersecurity fundamentals (awareness games, no heavy tools)
+- **Enterprise**: Employee security awareness (phishing, social engineering, incident response)
+- **IT / Security professionals**: CTF, network scanning, malware analysis, incident response
+- **Educators**: Interactive teaching tool across all three modes
 
 ## 🔧 Development
 
@@ -104,6 +111,13 @@ CyberArcade/
 - `GET /` - Main application
 - `GET /api/user/progress` - User progress data
 - `GET /api/game/{game_id}` - Game-specific data
+- `GET /api/learning/paths` - Learning paths (beginner, intermediate, advanced)
+- `GET /api/integrations/active-directory/status` - AD integration status (stub)
+- `GET /api/integrations/api/status` - External API integration status (stub)
+
+### React frontend & database
+- **React**: Run `npm install` and `npm run dev` in `src/frontend-react/`; see `src/frontend-react/README.md`. The React app uses the same Flask API.
+- **Database**: Default is SQLite. For a production-grade database, see `ARCHITECTURE.md` for the PostgreSQL path.
 
 ## 📚 Learning Resources
 

@@ -326,6 +326,10 @@
         `;
         
         addPoints(score * 30);
+        // Submit game result to backend (MySQL)
+        if (typeof submitGameResult === 'function') {
+            submitGameResult('security-quiz', score, timeTaken);
+        }
         if (percentage === 100) {
             addAchievement('quiz-master', 'Security Quiz Master', 'Perfect score in Security Quiz Challenge!');
         }
@@ -346,5 +350,11 @@
         init: initSecurityQuiz
     };
 })();
+
+
+
+
+
+
 
 

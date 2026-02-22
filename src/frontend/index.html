@@ -16,14 +16,25 @@
                 <i class="fas fa-shield-alt"></i>
                 <span>CyberArcade</span>
             </div>
-            <div class="nav-menu">
+            <div class="nav-menu" id="navMenu" style="display: none;">
                 <a href="#home" class="nav-link active">Home</a>
-                <a href="#paths" class="nav-link">Paths</a>
                 <a href="#learn" class="nav-link">Learn</a>
                 <a href="#games" class="nav-link">Games</a>
                 <a href="#progress" class="nav-link">Progress</a>
+                <a href="#parental" class="nav-link" id="parentalLink" style="display: none;">
+                    <i class="fas fa-users"></i> Parental Guide
+                </a>
             </div>
-            <div class="nav-user">
+            <div class="nav-auth" id="navAuth">
+                <button class="btn-auth" onclick="showLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+            <div class="nav-user" id="navUser" style="display: none;">
+                <div class="user-info">
+                    <span id="userName">User</span>
+                    <span id="userType" class="user-type-badge"></span>
+                </div>
                 <div class="user-level">
                     <i class="fas fa-star"></i>
                     <span id="userLevel">Level 1</span>
@@ -32,6 +43,9 @@
                     <i class="fas fa-coins"></i>
                     <span id="userPoints">0</span>
                 </div>
+                <button class="btn-auth" onclick="logout()" style="margin-left: 1rem;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </div>
     </nav>
@@ -40,40 +54,31 @@
     <main class="main-content">
         <!-- Home Section -->
         <section id="home" class="section active">
-            <div class="hero">
+            <div class="hero hero-clean">
                 <div class="hero-content">
                     <h1 class="hero-title">
                         <span class="gradient-text">Cybersecurity Awareness</span>
-                        <br>& Education Platform
-            </h1>
+                        <br> & Education
+                    </h1>
                     <p class="hero-subtitle">
                         Build practical cybersecurity awareness through interactive games and real-world scenarios. 
                         Learn to recognize threats, protect yourself online, and understand essential security practices. 
                         A practical, awareness-focused platform for everyone - from kids to professionals.
                     </p>
                     <div class="hero-buttons">
-                        <button class="btn btn-primary" onclick="showSection('paths')">
-                            <i class="fas fa-shield-alt"></i>
-                            Build Awareness
+                        <button class="btn btn-primary" onclick="showSection('learn')">
+                            <i class="fas fa-book-open"></i>
+                            Start Learning
                         </button>
-                        <button class="btn btn-secondary" onclick="showSection('learn')">
-                            <i class="fas fa-lightbulb"></i>
-                            Learn Essentials
+                        <button class="btn btn-secondary" onclick="showSection('games')">
+                            <i class="fas fa-gamepad"></i>
+                            Play Games
                         </button>
                     </div>
                     <div class="hero-value-prop">
-                        <div class="value-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Practical Awareness</span>
-                        </div>
-                        <div class="value-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Real-World Scenarios</span>
-                        </div>
-                        <div class="value-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>For Everyone</span>
-                        </div>
+                        <div class="value-item"><i class="fas fa-check-circle"></i><span>Tailored to you</span></div>
+                        <div class="value-item"><i class="fas fa-check-circle"></i><span>Real-world safety</span></div>
+                        <div class="value-item"><i class="fas fa-check-circle"></i><span>Students · Citizens · Pros · Parents</span></div>
                     </div>
                 </div>
                 <div class="hero-visual">
@@ -92,13 +97,13 @@
             </div>
 
             <!-- Today's Security Tip -->
-            <div class="security-tip-section" style="background: linear-gradient(135deg, rgba(0,255,255,0.15), rgba(0,128,255,0.15)); padding: 2rem; border-radius: 20px; border: 2px solid rgba(0,255,255,0.3); margin: 3rem 0; text-align: center;">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
-                    <i class="fas fa-lightbulb" style="font-size: 2rem; color: #00ffff;"></i>
-                    <h2 style="color: #00ffff; font-size: 1.8rem; margin: 0;">Today's Security Tip</h2>
+            <div class="security-tip-section">
+                <div class="security-tip-header">
+                    <i class="fas fa-lightbulb"></i>
+                    <h2>Today's Security Tip</h2>
                 </div>
-                <div id="todaysSecurityTip" style="color: #ffffff; font-size: 1.3rem; line-height: 1.8; max-width: 800px; margin: 0 auto;">
-                    <p style="margin: 0;">Loading tip...</p>
+                <div id="todaysSecurityTip" class="security-tip-content">
+                    <p>Loading tip...</p>
                 </div>
             </div>
 
@@ -134,8 +139,50 @@
             </div>
         </section>
 
-        <!-- Learning Paths Section -->
-        <section id="paths" class="section">
+        <!-- Login Section -->
+        <section id="login" class="section">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="login-card-header">
+                        <div class="login-logo"><i class="fas fa-shield-alt"></i></div>
+                        <h2>Welcome to CyberArcade</h2>
+                        <p>Sign in or create an account to start learning</p>
+                    </div>
+                    <div class="login-tabs">
+                        <button type="button" class="login-tab active" onclick="showLoginForm()">Login</button>
+                        <button type="button" class="login-tab" onclick="showRegisterForm()">Register</button>
+                    </div>
+                    <div id="loginForm" class="auth-form">
+                        <label class="auth-label" for="loginUsername">Username or email</label>
+                        <input type="text" id="loginUsername" placeholder="Enter username or email" required autocomplete="username">
+                        <label class="auth-label" for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password">
+                        <button type="button" class="btn btn-primary btn-auth-submit" onclick="handleLogin()">Sign in</button>
+                        <div id="loginError" class="auth-error"></div>
+                    </div>
+                    <div id="registerForm" class="auth-form" style="display: none;">
+                        <label class="auth-label" for="regUsername">Username</label>
+                        <input type="text" id="regUsername" placeholder="Choose a username" required autocomplete="username">
+                        <label class="auth-label" for="regEmail">Email</label>
+                        <input type="email" id="regEmail" placeholder="Your email address" required autocomplete="email">
+                        <label class="auth-label" for="regPassword">Password</label>
+                        <input type="password" id="regPassword" placeholder="Choose a strong password" required autocomplete="new-password">
+                        <label class="auth-label" for="regUserType">I am a</label>
+                        <select id="regUserType" required aria-label="Account type">
+                            <option value="student">Student</option>
+                            <option value="digital_citizen">Digital Citizen</option>
+                            <option value="itpro">IT Professional</option>
+                            <option value="parent">Parental Guide</option>
+                        </select>
+                        <button type="button" class="btn btn-primary btn-auth-submit" onclick="handleRegister()">Create account</button>
+                        <div id="registerError" class="auth-error"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learning Paths Section (REMOVED) -->
+        <section id="paths" class="section" style="display: none;">
             <div class="breadcrumb" style="margin-bottom: 1.5rem; padding: 0.75rem 1rem; background: rgba(0,255,255,0.1); border-radius: 10px; font-size: 0.9rem;">
                 <a href="#home" onclick="showSection('home'); return false;" style="color: #00ffff; text-decoration: none;">Home</a>
                 <span style="margin: 0 0.5rem; color: #cccccc;">→</span>
@@ -168,16 +215,29 @@
         </section>
 
         <!-- Learn Section -->
-        <section id="learn" class="section">
+        <section id="learn" class="section section-learn">
             <div class="section-header">
-                <h2>Cybersecurity Awareness Essentials</h2>
-                <p>Learn practical cybersecurity awareness through interactive flashcards and real-world examples</p>
+                <h2>Learning Modules</h2>
+                <p id="learnSubtitle" class="section-subtitle">Content tailored to your role. Pick a module and start.</p>
             </div>
+            <div class="modules-grid" id="modulesGrid">
+                <!-- Loaded by user type -->
+            </div>
+        </section>
 
-            <!-- Flashcards Section -->
-            <div class="flashcards-section">
-                <div class="flashcards-container" id="flashcardsContainer">
-                    <!-- Flashcards will be dynamically generated here -->
+        <!-- Parental Guide Section -->
+        <section id="parental" class="section section-learn">
+            <div class="section-header">
+                <h2>Parental Guide</h2>
+                <p class="section-subtitle">See what your child is learning and how you can support them.</p>
+            </div>
+            <div class="parental-dashboard" id="parentalDashboard">
+                <div class="parental-info">
+                    <p>These are the same modules your child can access. Use them to talk about online safety together.</p>
+                </div>
+                <div class="parental-modules">
+                    <h3 class="parental-modules-title">Modules in this guide</h3>
+                    <div class="modules-grid" id="parentalModulesGrid"></div>
                 </div>
             </div>
         </section>
@@ -185,181 +245,11 @@
         <!-- Games Section -->
         <section id="games" class="section">
             <div class="section-header">
-                <h2>Game Center</h2>
-                <p>Practice cybersecurity awareness through hands-on games and real-world scenarios</p>
+                <h2 id="gamesSectionTitle">Game Center</h2>
+                <p id="gamesSectionSubtitle">Practice cybersecurity awareness through hands-on games and real-world scenarios</p>
             </div>
-
-            <div class="games-grid">
-                <!-- 1. Snake & Ladder -->
-                <div class="game-card" data-game="snake-ladder">
-                    <div class="game-image">
-                        <i class="fas fa-dice"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Cyber Snake & Ladder</h3>
-                        <p>Navigate through cybersecurity challenges in this classic board game</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Easy</span>
-                            <span class="duration">10-15 min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('snake-ladder')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
-
-                <!-- 2. Phishing Detective (Enhanced) -->
-                <div class="game-card" data-game="phishing-detective">
-                    <div class="game-image">
-                        <i class="fas fa-envelope-open-text"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Phishing Detective</h3>
-                        <p>Identify phishing in emails, WhatsApp, websites, and more</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Medium</span>
-                            <span class="duration">15-20 min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('phishing-detective')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
-
-                <!-- 3. Social Engineering Simulator -->
-                <div class="game-card" data-game="social-engineering">
-                    <div class="game-image">
-                        <i class="fas fa-user-secret"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Social Engineering Simulator</h3>
-                        <p>Test your ability to identify social engineering attacks</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Medium</span>
-                            <span class="duration">8-12 min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('social-engineering')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
-
-                <!-- 4. Caesar Cipher -->
-                <div class="game-card" data-game="caesar-cipher">
-                    <div class="game-image">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Caesar Cipher</h3>
-                        <p>Learn encryption by mastering the Caesar cipher</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Medium</span>
-                            <span class="duration">10-15 min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('caesar-cipher')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
-
-                <!-- 5. Security Quiz Challenge -->
-                <div class="game-card" data-game="security-quiz">
-                    <div class="game-image">
-                        <i class="fas fa-question-circle"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Security Quiz Challenge</h3>
-                        <p>Test your cybersecurity knowledge with interactive quizzes</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Medium</span>
-                            <span class="duration">10-15 min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('security-quiz')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
-
-                <!-- 6. Spot the Threat -->
-                <div class="game-card" data-game="spot-the-threat">
-                    <div class="game-image">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Spot the Threat</h3>
-                        <p>Visual threat detection - identify security risks in scenarios</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Medium</span>
-                            <span class="duration">12-18 min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('spot-the-threat')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
-
-                <!-- 5. Incident Response Simulator -->
-                <div class="game-card" data-game="incident-response">
-                    <div class="game-image">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Incident Response Simulator</h3>
-                        <p>Handle real-time cybersecurity incidents like a professional</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Expert</span>
-                            <span class="duration">20-25 min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('incident-response')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
-
-                <!-- 6. Password Cracking Simulator -->
-                <div class="game-card" data-game="password-cracker">
-                    <div class="game-image">
-                        <i class="fas fa-unlock-alt"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Password Cracking Simulator</h3>
-                        <p>Demonstrate password vulnerability through realistic simulation</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Medium</span>
-                            <span class="duration">5-10 min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('password-cracker')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
-
-                <!-- 7. Capture The Flag (CTF) -->
-                <div class="game-card" data-game="capture-the-flag">
-                    <div class="game-image">
-                        <i class="fas fa-flag"></i>
-                    </div>
-                    <div class="game-content">
-                        <h3>Capture The Flag (CTF)</h3>
-                        <p>15+ Professional hacking challenges across 6 categories</p>
-                        <div class="game-stats">
-                            <span class="difficulty">Expert</span>
-                            <span class="duration">60+ min</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-game" onclick="startGame('capture-the-flag')">
-                        <i class="fas fa-play"></i>
-                        Play
-                    </button>
-                </div>
+            <div class="games-grid" id="gamesGrid">
+                <!-- Filled by script.js based on audience (Student / Enterprise / IT Pro) -->
             </div>
         </section>
 
@@ -474,6 +364,8 @@
     <script src="games/phishingDetective.js"></script>
     <script src="games/securityQuiz.js"></script>
     <script src="games/spotTheThreat.js"></script>
+    <script src="games/networkScanner.js"></script>
+    <script src="games/malwareAnalysis.js"></script>
     <script src="script.js"></script>
     </body>
 </html>

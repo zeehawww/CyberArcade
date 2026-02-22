@@ -4,83 +4,84 @@ CyberArcade - A Modern Cybersecurity Learning Platform
 Backend server for the web-based gaming platform
 """
 
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 import json
 import os
 import random
 from datetime import datetime, timedelta
-import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from .integrations import integrations_bp
+from . import db
+from . import auth
+from .awareness_modules import STUDENT_AWARENESS, DIGITAL_CITIZEN_AWARENESS, ITPRO_AWARENESS
+
 app = Flask(__name__)
-CORS(app)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+CORS(app, supports_credentials=True)
+app.register_blueprint(integrations_bp)
 
-# Database setup
-def init_db():
-    """Initialize the SQLite database"""
-    conn = sqlite3.connect('cyberarcade.db')
-    cursor = conn.cursor()
-    
-    # Users table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            level INTEGER DEFAULT 1,
-            points INTEGER DEFAULT 0,
-            badges INTEGER DEFAULT 0,
-            streak INTEGER DEFAULT 0,
-            total_time INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    # Achievements table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS achievements (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            achievement_id TEXT NOT NULL,
-            title TEXT NOT NULL,
-            description TEXT,
-            earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )
-    ''')
-    
-    # Game sessions table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS game_sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            game_type TEXT NOT NULL,
-            score INTEGER DEFAULT 0,
-            duration INTEGER DEFAULT 0,
-            completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )
-    ''')
-    
-    # Learning progress table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS learning_progress (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            module_id TEXT NOT NULL,
-            progress_percentage INTEGER DEFAULT 0,
-            last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )
-    ''')
-    
-    conn.commit()
-    conn.close()
+# Initialize database on startup (SQLite or PostgreSQL from env)
+db.init_db()
 
-# Initialize database on startup
-init_db()
+# Auth routes
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    """Register a new user"""
+    data = request.get_json()
+    username = data.get('username', '').strip()
+    email = data.get('email', '').strip()
+    password = data.get('password', '')
+    user_type = data.get('user_type', 'student')
+    
+    if not username or not email or not password:
+        return jsonify({"success": False, "error": "Username, email, and password required"}), 400
+    
+    if user_type not in ['student', 'digital_citizen', 'itpro', 'parent']:
+        return jsonify({"success": False, "error": "Invalid user type"}), 400
+    
+    success, result = auth.register_user(username, email, password, user_type)
+    if success:
+        session['user_id'] = result
+        return jsonify({"success": True, "user_id": result})
+    return jsonify({"success": False, "error": result}), 400
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    """Login user"""
+    data = request.get_json()
+    username_or_email = data.get('username', '').strip()
+    password = data.get('password', '')
+    
+    if not username_or_email or not password:
+        return jsonify({"success": False, "error": "Username/email and password required"}), 400
+    
+    success, result = auth.login_user(username_or_email, password)
+    if success:
+        session['user_id'] = result['id']
+        session['user_type'] = result['user_type']
+        return jsonify({"success": True, "user": result})
+    return jsonify({"success": False, "error": result}), 401
+
+@app.route('/api/auth/logout', methods=['POST'])
+def logout():
+    """Logout user"""
+    session.clear()
+    return jsonify({"success": True})
+
+@app.route('/api/auth/me', methods=['GET'])
+def get_current_user():
+    """Get current logged-in user"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+    
+    user = auth.get_user_by_id(user_id)
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    
+    return jsonify({"success": True, "user": user})
 
 # Game data and logic
 class GameManager:
@@ -301,28 +302,23 @@ def get_game_data(game_type):
 def submit_game_result(game_type):
     """Submit game results and update user progress"""
     data = request.get_json()
-    
-    # For now, we'll use a default user ID (in a real app, this would come from authentication)
-    user_id = 1
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
     
     # Calculate points based on game type and performance
     points = calculate_points(game_type, data)
     
     # Update user progress in database
-    conn = sqlite3.connect('cyberarcade.db')
-    cursor = conn.cursor()
-    
-    # Update user points
-    cursor.execute('UPDATE users SET points = points + ? WHERE id = ?', (points, user_id))
-    
-    # Record game session
-    cursor.execute('''
-        INSERT INTO game_sessions (user_id, game_type, score, duration)
-        VALUES (?, ?, ?, ?)
-    ''', (user_id, game_type, data.get('score', 0), data.get('duration', 0)))
-    
-    conn.commit()
-    conn.close()
+    conn = db.get_conn()
+    try:
+        db.execute(conn, 'UPDATE users SET points = points + ? WHERE id = ?', (points, user_id), commit=True)
+        db.execute(conn, '''
+            INSERT INTO game_sessions (user_id, game_type, score, duration)
+            VALUES (?, ?, ?, ?)
+        ''', (user_id, game_type, data.get('score', 0), data.get('duration', 0)), commit=True)
+    finally:
+        conn.close()
     
     return jsonify({
         "success": True,
@@ -333,205 +329,117 @@ def submit_game_result(game_type):
 @app.route('/api/user/progress', methods=['GET'])
 def get_user_progress():
     """Get user progress data"""
-    user_id = 1  # Default user for demo
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
     
-    conn = sqlite3.connect('cyberarcade.db')
-    cursor = conn.cursor()
-    
-    # Get user data
-    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
-    user = cursor.fetchone()
-    
-    if not user:
-        # Create default user
-        cursor.execute('''
-            INSERT INTO users (username, email, password_hash, level, points, badges, streak, total_time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', ('demo_user', 'demo@cyberarcade.com', 'demo_hash', 1, 0, 0, 0, 0))
-        conn.commit()
-        user = (1, 'demo_user', 'demo@cyberarcade.com', 'demo_hash', 1, 0, 0, 0, 0, datetime.now())
-    
-    # Get achievements
-    cursor.execute('SELECT * FROM achievements WHERE user_id = ?', (user_id,))
-    achievements = cursor.fetchall()
-    
-    # Get recent game sessions
-    cursor.execute('''
-        SELECT game_type, score, completed_at 
-        FROM game_sessions 
-        WHERE user_id = ? 
-        ORDER BY completed_at DESC 
-        LIMIT 10
-    ''', (user_id,))
-    recent_games = cursor.fetchall()
-    
-    conn.close()
+    conn = db.get_conn()
+    try:
+        user = db.execute(conn, 'SELECT * FROM users WHERE id = ?', (user_id,), fetch_one=True)
+        if not user:
+            return jsonify({"success": False, "error": "User not found"}), 404
+        achievements = db.execute(conn, 'SELECT * FROM achievements WHERE user_id = ?', (user_id,), fetch_all=True) or []
+        recent_games = db.execute(conn, '''
+            SELECT game_type, score, completed_at 
+            FROM game_sessions 
+            WHERE user_id = ? 
+            ORDER BY completed_at DESC 
+            LIMIT 10
+        ''', (user_id,), fetch_all=True) or []
+    finally:
+        conn.close()
     
     return jsonify({
         "user": {
             "id": user[0],
             "username": user[1],
-            "level": user[4],
-            "points": user[5],
-            "badges": user[6],
-            "streak": user[7],
-            "total_time": user[8]
+            "email": user[2],
+            "user_type": user[4] if len(user) > 4 else 'student',
+            "level": user[5] if len(user) > 5 else 1,
+            "points": user[6] if len(user) > 6 else 0,
+            "badges": user[7] if len(user) > 7 else 0,
+            "streak": user[8] if len(user) > 8 else 0,
+            "total_time": user[9] if len(user) > 9 else 0
         },
         "achievements": [{"id": a[2], "title": a[3], "description": a[4]} for a in achievements],
         "recent_games": [{"game_type": g[0], "score": g[1], "completed_at": g[2]} for g in recent_games]
     })
 
-@app.route('/api/learning/paths', methods=['GET'])
-def get_learning_paths():
-    """Get structured learning paths"""
-    paths = {
-        'beginner': {
-            'id': 'beginner',
-            'title': 'Beginner Path: Essential Cybersecurity Awareness',
-            'description': 'Build fundamental cybersecurity awareness. Learn practical ways to protect yourself online and recognize common threats.',
-            'duration': '4-6 weeks',
-            'modules': [
-                {
-                    'id': 'passwords',
-                    'order': 1,
-                    'title': 'Password Security',
-                    'objectives': [
-                        'Understand what makes a strong password',
-                        'Learn to use password managers effectively',
-                        'Recognize common password vulnerabilities'
-                    ],
-                    'games': ['password-cracker'],
-                    'estimated_time': '30 minutes'
-                },
-                {
-                    'id': 'phishing',
-                    'order': 2,
-                    'title': 'Phishing Recognition',
-                    'objectives': [
-                        'Identify phishing emails and messages',
-                        'Understand social engineering tactics',
-                        'Learn to verify legitimate communications'
-                    ],
-                    'games': ['social-engineering'],
-                    'estimated_time': '45 minutes'
-                },
-                {
-                    'id': 'browsing',
-                    'order': 3,
-                    'title': 'Secure Browsing',
-                    'objectives': [
-                        'Recognize secure websites (HTTPS)',
-                        'Understand safe download practices',
-                        'Identify suspicious websites'
-                    ],
-                    'games': ['network-scanner'],
-                    'estimated_time': '30 minutes'
-                }
-            ],
-            'outcomes': [
-                'Awareness of password security best practices',
-                'Ability to recognize and avoid phishing attempts',
-                'Knowledge of safe browsing habits',
-                'Practical cybersecurity awareness for daily life'
-            ]
-        },
-        'intermediate': {
-            'id': 'intermediate',
-            'title': 'Intermediate Path: Network & Security Awareness',
-            'description': 'Develop awareness of network security, encryption basics, and how to respond to security incidents in real-world scenarios.',
-            'duration': '6-8 weeks',
-            'modules': [
-                {
-                    'id': 'encryption',
-                    'order': 1,
-                    'title': 'Encryption Basics',
-                    'objectives': [
-                        'Understand how encryption works',
-                        'Learn about different encryption methods',
-                        'Apply encryption concepts practically'
-                    ],
-                    'games': ['caesar-cipher'],
-                    'estimated_time': '45 minutes'
-                },
-                {
-                    'id': 'network',
-                    'order': 2,
-                    'title': 'Network Security',
-                    'objectives': [
-                        'Understand network vulnerabilities',
-                        'Learn about port scanning and security assessment',
-                        'Identify common network threats'
-                    ],
-                    'games': ['network-scanner'],
-                    'estimated_time': '60 minutes'
-                },
-                {
-                    'id': 'incident',
-                    'order': 3,
-                    'title': 'Incident Response',
-                    'objectives': [
-                        'Learn to respond to security incidents',
-                        'Understand incident response procedures',
-                        'Practice handling real-world scenarios'
-                    ],
-                    'games': ['incident-response'],
-                    'estimated_time': '45 minutes'
-                }
-            ],
-            'outcomes': [
-                'Awareness of encryption and how it protects data',
-                'Understanding of network security vulnerabilities',
-                'Knowledge of incident response procedures',
-                'Practical awareness of intermediate security concepts'
-            ]
-        },
-        'advanced': {
-            'id': 'advanced',
-            'title': 'Advanced Path: Security Analysis Awareness',
-            'description': 'Build awareness of advanced security concepts including penetration testing, malware analysis, and security research practices.',
-            'duration': '8-12 weeks',
-            'modules': [
-                {
-                    'id': 'ctf',
-                    'order': 1,
-                    'title': 'Capture The Flag',
-                    'objectives': [
-                        'Solve cryptography challenges',
-                        'Understand web exploitation basics',
-                        'Learn digital forensics techniques',
-                        'Practice reverse engineering concepts'
-                    ],
-                    'games': ['capture-the-flag'],
-                    'estimated_time': '2-3 hours'
-                },
-                {
-                    'id': 'malware',
-                    'order': 2,
-                    'title': 'Malware Analysis',
-                    'objectives': [
-                        'Understand malware behavior',
-                        'Learn static and dynamic analysis',
-                        'Identify network indicators of compromise'
-                    ],
-                    'games': ['malware-analysis'],
-                    'estimated_time': '60 minutes'
-                }
-            ],
-            'outcomes': [
-                'Awareness of CTF challenges and security competitions',
-                'Understanding of malware analysis concepts',
-                'Knowledge of penetration testing principles',
-                'Foundation for advanced security learning platforms'
-            ],
-            'next_steps': 'After building awareness here, you\'ll have a solid foundation to explore advanced platforms like TryHackMe and HackTheBox.'
-        }
+@app.route('/api/learning/modules', methods=['GET'])
+def get_learning_modules():
+    """Get learning modules filtered by user type. Content tailored to each persona."""
+    user_type = session.get('user_type', 'student')
+    # Map legacy 'enterprise' to 'digital_citizen'
+    if user_type == 'enterprise':
+        user_type = 'digital_citizen'
+    
+    # Module IDs per user type — core awareness module first, then topic-based
+    modules_by_type = {
+        'student': ['student_awareness', 'passwords', 'phishing', 'browsing', 'social_safety'],
+        'digital_citizen': ['digital_citizen_awareness', 'passwords', 'phishing', 'browsing', 'privacy', 'scams'],
+        'itpro': ['itpro_awareness', 'encryption', 'network', 'incident', 'malware', 'passwords'],
+        'parent': ['passwords', 'phishing', 'browsing', 'parent_guide']
     }
     
-    return jsonify(paths)
+    module_ids = modules_by_type.get(user_type, modules_by_type['student'])
+    
+    # Awareness module metadata (core learning module per type)
+    AWARENESS_MODULES = {
+        'student_awareness': {'id': 'student_awareness', 'title': 'Cybersecurity Awareness for Students', 'icon': 'fa-graduation-cap', 'description': 'Structured awareness module: phishing, malware, social engineering, passwords, and privacy—with quizzes and scenarios.'},
+        'digital_citizen_awareness': {'id': 'digital_citizen_awareness', 'title': 'Cybersecurity Awareness for Digital Citizens', 'icon': 'fa-user-shield', 'description': 'Banking fraud, scams, malware, passwords, and family privacy—with quizzes and scenarios.'},
+        'itpro_awareness': {'id': 'itpro_awareness', 'title': 'Cybersecurity Awareness for IT Professionals', 'icon': 'fa-laptop-code', 'description': 'BEC, ransomware lifecycle, social engineering, auth best practices, and compliance awareness—with quizzes and scenarios.'},
+    }
+    # Titles and descriptions that "click" per user type (age-appropriate, relatable)
+    MODULES_BY_USER = {
+        'student': {
+            'student_awareness': AWARENESS_MODULES['student_awareness'],
+            'passwords': {'id': 'passwords', 'title': 'Keep Your Accounts Safe', 'icon': 'fa-key', 'description': 'Simple rules so your passwords don’t get stolen—and what to do if they do.'},
+            'phishing': {'id': 'phishing', 'title': 'Spot Fake Messages & Links', 'icon': 'fa-envelope-open-text', 'description': 'Tell real messages from scams so you don’t get tricked online.'},
+            'browsing': {'id': 'browsing', 'title': 'Surf the Web Safely', 'icon': 'fa-globe', 'description': 'Know when a site or download is safe—and when to bounce.'},
+            'social_safety': {'id': 'social_safety', 'title': 'Stay Safe on Social Media', 'icon': 'fa-share-alt', 'description': 'Protect your profile, who you talk to, and what you share.'},
+        },
+        'digital_citizen': {
+            'digital_citizen_awareness': AWARENESS_MODULES['digital_citizen_awareness'],
+            'passwords': {'id': 'passwords', 'title': 'Protect Your Logins', 'icon': 'fa-key', 'description': 'Strong passwords and 2FA so your email, bank, and apps stay yours.'},
+            'phishing': {'id': 'phishing', 'title': 'Don’t Get Tricked by Scams', 'icon': 'fa-envelope-open-text', 'description': 'Recognize phishing emails, fake sites, and urgent “act now” tricks.'},
+            'browsing': {'id': 'browsing', 'title': 'Safe Browsing & Downloads', 'icon': 'fa-globe', 'description': 'HTTPS, safe downloads, and avoiding sketchy sites in daily life.'},
+            'privacy': {'id': 'privacy', 'title': 'Your Privacy Online', 'icon': 'fa-user-shield', 'description': 'What companies and sites can see—and how to lock it down.'},
+            'scams': {'id': 'scams', 'title': 'Real-World Scam Alerts', 'icon': 'fa-exclamation-circle', 'description': 'Common scams (refunds, tech support, prizes) and how to say no.'},
+        },
+        'itpro': {
+            'itpro_awareness': AWARENESS_MODULES['itpro_awareness'],
+            'encryption': {'id': 'encryption', 'title': 'Encryption Basics', 'icon': 'fa-lock', 'description': 'Concepts and practices for protecting data in transit and at rest.'},
+            'network': {'id': 'network', 'title': 'Network Security', 'icon': 'fa-network-wired', 'description': 'Ports, scanning, and hardening network infrastructure.'},
+            'incident': {'id': 'incident', 'title': 'Incident Response', 'icon': 'fa-exclamation-triangle', 'description': 'Detect, contain, and recover from security incidents.'},
+            'malware': {'id': 'malware', 'title': 'Malware Analysis', 'icon': 'fa-bug', 'description': 'Static and dynamic analysis fundamentals for security work.'},
+            'passwords': {'id': 'passwords', 'title': 'Password & Auth Best Practices', 'icon': 'fa-key', 'description': 'Policy, hashing, and authentication in professional environments.'},
+        },
+        'parent': {
+            'passwords': {'id': 'passwords', 'title': 'Help Your Child Lock Down Accounts', 'icon': 'fa-key', 'description': 'Teach strong passwords and account safety in a way kids get.'},
+            'phishing': {'id': 'phishing', 'title': 'Teaching Kids to Spot Scams', 'icon': 'fa-envelope-open-text', 'description': 'How to explain fake messages and “too good to be true” offers.'},
+            'browsing': {'id': 'browsing', 'title': 'Safe Browsing With Your Family', 'icon': 'fa-globe', 'description': 'Safe sites, screen time, and what to do when something looks wrong.'},
+            'parent_guide': {'id': 'parent_guide', 'title': 'Parental Guide Overview', 'icon': 'fa-users', 'description': 'What your child sees here and how you can support their learning.'},
+        },
+    }
+    
+    mod_map = MODULES_BY_USER.get(user_type, MODULES_BY_USER['student'])
+    modules = [mod_map[mid] for mid in module_ids if mid in mod_map]
+    
+    return jsonify({
+        'modules': modules,
+        'user_type': user_type
+    })
 
 @app.route('/api/learning/<module_id>', methods=['GET'])
 def get_learning_module(module_id):
     """Get learning module content"""
+    awareness_map = {
+        'student_awareness': STUDENT_AWARENESS,
+        'digital_citizen_awareness': DIGITAL_CITIZEN_AWARENESS,
+        'itpro_awareness': ITPRO_AWARENESS,
+    }
+    if module_id in awareness_map:
+        return jsonify(awareness_map[module_id])
     modules = {
         'passwords': {
             'title': 'Password Security',
@@ -544,13 +452,18 @@ def get_learning_module(module_id):
                 'lessons': [
                     {
                         'title': 'What Makes a Strong Password?',
-                        'content': 'Learn the essential elements of creating secure passwords that protect your accounts.',
+                        'content': 'A strong password is long (at least 12 characters), uses a mix of letters (upper and lower case), numbers, and symbols, and is not based on obvious things like your name, birthday, or "password123." Avoid reusing the same password on different sites—if one site is hacked, attackers will try that password elsewhere. Use a different password for email and banking especially.',
                         'interactive': 'password_checker'
                     },
                     {
                         'title': 'Password Managers',
-                        'content': 'Discover how password managers can help you maintain strong, unique passwords for all your accounts.',
+                        'content': 'A password manager stores all your passwords in one locked place. You only need to remember one strong "master" password. The manager can create long, random passwords for each site and fill them in for you, so you don’t reuse weak ones. Popular options include Bitwarden, 1Password, and the one built into your browser or phone—turn on a master password or device lock so only you can see them.',
                         'interactive': 'password_manager_demo'
+                    },
+                    {
+                        'title': 'Two-Factor Authentication (2FA)',
+                        'content': '2FA adds a second step when you log in: something you know (password) plus something you have (phone app or code). Even if someone steals your password, they usually can’t get that second step. Turn on 2FA for your email, social accounts, and banking. Prefer an app (e.g. Google Authenticator) or a security key over SMS when possible.',
+                        'interactive': None
                     }
                 ]
             }
@@ -566,13 +479,18 @@ def get_learning_module(module_id):
                 'lessons': [
                     {
                         'title': 'Identifying Phishing Emails',
-                        'content': 'Learn to spot the telltale signs of phishing attempts in your email inbox.',
+                        'content': 'Phishing emails try to trick you into clicking a link, opening a file, or giving your password or card details. Red flags: urgent language ("Act now or your account will be closed"), sender address that looks wrong (e.g. support@amaz0n.com), generic greetings ("Dear Customer"), and links that don’t match the real company URL. When in doubt, don’t click—go to the real site by typing the address or using your bookmark.',
                         'interactive': 'email_analyzer'
                     },
                     {
                         'title': 'Common Phishing Tactics',
-                        'content': 'Understand the psychological tricks used by cybercriminals to trick victims.',
+                        'content': 'Attackers use fear (fake fines, account suspension), curiosity (you’ve been tagged in a photo), or greed (you’ve won a prize) to get you to click or reply. They may pretend to be your bank, a delivery company, or tech support. Real organizations don’t ask for your password or full card number by email. If you’re unsure, contact the company using the phone number or website from their official page, not from the email.',
                         'interactive': 'tactics_quiz'
+                    },
+                    {
+                        'title': 'SMS, Messaging, and Fake Sites',
+                        'content': 'Phishing also happens via text, WhatsApp, and other apps. Same rules: don’t tap links or give personal details. Fake sites look like real ones but the URL is slightly wrong (e.g. paypa1.com). Always check the address bar before typing passwords or payment info. Use bookmarks or type the URL yourself for important sites.',
+                        'interactive': None
                     }
                 ]
             }
@@ -588,13 +506,18 @@ def get_learning_module(module_id):
                 'lessons': [
                     {
                         'title': 'HTTPS and Website Security',
-                        'content': 'Learn how to identify secure websites and protect your browsing data.',
+                        'content': 'HTTPS means the connection between your browser and the website is encrypted. Look for the padlock icon and "https://" in the address bar before entering passwords or payment details. Avoid entering sensitive data on sites that show "Not secure" or warnings. Browser warnings about certificates usually mean the site could be impersonated—don’t proceed unless you’re sure.',
                         'interactive': 'website_checker'
                     },
                     {
                         'title': 'Safe Download Practices',
-                        'content': 'Understand how to safely download files and avoid malicious software.',
+                        'content': 'Only download from official or trusted sources. Avoid "download" buttons on random sites—they often lead to adware or malware. Prefer app stores for mobile apps. When you do download a file, scan it with your antivirus if possible. Don’t open email attachments from people you don’t know or that you weren’t expecting.',
                         'interactive': 'download_simulator'
+                    },
+                    {
+                        'title': 'Suspicious Sites and Pop-Ups',
+                        'content': 'Sites that are full of pop-ups, "Your PC is infected" messages, or offers that seem too good to be true are often malicious or scams. Close the tab or use Task Manager to close the browser if it won’t let you. Keep your browser and OS updated so security patches are applied. Use an ad blocker to reduce exposure to malicious ads.',
+                        'interactive': None
                     }
                 ]
             }
@@ -610,13 +533,202 @@ def get_learning_module(module_id):
                 'lessons': [
                     {
                         'title': 'Understanding Encryption',
-                        'content': 'Learn how encryption works to protect your data and communications.',
+                        'content': 'Encryption scrambles data so only someone with the right key can read it. When you see a padlock in your browser or use WhatsApp, encryption is protecting your data. Strong encryption uses math that is easy to do one way but practically impossible to reverse without the key.',
                         'interactive': 'encryption_demo'
                     },
                     {
                         'title': 'Caesar Cipher',
-                        'content': 'Explore one of the oldest encryption methods and understand its principles.',
+                        'content': 'The Caesar cipher is one of the oldest encryption methods: each letter is shifted by a fixed number. It teaches the idea of a "key" (the shift). Modern encryption is much stronger, but the same idea—sender and receiver share a secret—still applies.',
                         'interactive': 'caesar_cipher_tool'
+                    }
+                ]
+            }
+        },
+        'network': {
+            'title': 'Network Security',
+            'learning_objectives': [
+                'Understand ports, services, and exposure',
+                'Learn the basics of network scanning and hardening',
+                'Recognize common network-based attacks'
+            ],
+            'content': {
+                'lessons': [
+                    {
+                        'title': 'Ports and Services',
+                        'content': 'Services (web, SSH, database) listen on ports. Open ports are entry points: they must be needed and secured. Default credentials and outdated software on exposed ports are a leading cause of breaches. Principle: expose only what is necessary and keep it patched.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Scanning and Assessment',
+                        'content': 'Authorized scanning (e.g. with Nmap) helps find misconfigurations and weak points before attackers do. Always get written approval before scanning systems you do not own. Use scan results to prioritize patching and firewall rules.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Hardening and Segmentation',
+                        'content': 'Harden systems by disabling unused services, using strong auth, and applying least privilege. Segment the network so a compromise in one zone does not easily spread. Monitor for unusual traffic and failed logins.',
+                        'interactive': None
+                    }
+                ]
+            }
+        },
+        'incident': {
+            'title': 'Incident Response',
+            'learning_objectives': [
+                'Understand phases of incident response',
+                'Contain and recover from security events',
+                'Document and learn from incidents'
+            ],
+            'content': {
+                'lessons': [
+                    {
+                        'title': 'Detect and Triage',
+                        'content': 'Detection comes from logs, alerts, and user reports. Triage means deciding severity and impact: Is it malware? Unauthorized access? Data loss? Speed matters—early detection limits damage. Have runbooks and contact lists ready.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Contain and Eradicate',
+                        'content': 'Containment stops the incident from spreading: isolate affected systems, block malicious IPs, disable compromised accounts. Eradication removes the cause: delete malware, patch vulnerabilities, reset credentials. Preserve evidence if legal or HR may be involved.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Recover and Post-Incident',
+                        'content': 'Recovery means restoring systems from clean backups or rebuilds and verifying they are safe. After the incident, document what happened, what was done, and what to improve. Update policies and controls to reduce the chance of a repeat.',
+                        'interactive': None
+                    }
+                ]
+            }
+        },
+        'malware': {
+            'title': 'Malware Analysis',
+            'learning_objectives': [
+                'Understand types of malware and how they spread',
+                'Learn static and dynamic analysis basics',
+                'Use safe analysis environments'
+            ],
+            'content': {
+                'lessons': [
+                    {
+                        'title': 'Types of Malware',
+                        'content': 'Malware includes viruses, worms, trojans, ransomware, and spyware. It spreads via email, drives, vulnerable services, or social engineering. Understanding how it gets in and what it does helps you defend and respond. Never run unknown samples on production or personal machines.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Static Analysis',
+                        'content': 'Static analysis inspects files without running them: strings, hashes, headers, and disassembly. You can spot URLs, registry keys, and known bad signatures. Use sandboxes and isolated VMs; assume samples are dangerous.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Dynamic Analysis',
+                        'content': 'Dynamic analysis runs the sample in a controlled environment and observes behavior: network calls, file changes, processes. Tools like sandboxes and debuggers help. Always use a dedicated, isolated lab; never on a production network.',
+                        'interactive': None
+                    }
+                ]
+            }
+        },
+        'social_safety': {
+            'title': 'Stay Safe on Social Media',
+            'learning_objectives': [
+                'Protect your profile and personal info',
+                'Know who you talk to and what you share',
+                'Handle pressure and weird messages'
+            ],
+            'content': {
+                'lessons': [
+                    {
+                        'title': 'Lock Down Your Profile',
+                        'content': 'Use privacy settings so only people you trust see your posts, photos, and personal details. Turn off location sharing for posts if you don’t need it. Use a strong password and two-factor authentication on your account so nobody can log in as you.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Who You Talk To',
+                        'content': 'Only accept friend or follow requests from people you know in real life or trust. If someone you don’t know keeps messaging you or asking for photos or personal stuff, block them and tell a parent or teacher. Real friends won’t pressure you.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'What You Share',
+                        'content': 'Once you post something, it can be copied and shared. Don’t post your address, school name, or anything that could help a stranger find you. If someone asks you to send embarrassing or private pictures, say no and tell an adult—that’s not okay.',
+                        'interactive': None
+                    }
+                ]
+            }
+        },
+        'privacy': {
+            'title': 'Your Privacy Online',
+            'learning_objectives': [
+                'Understand what sites and apps can see',
+                'Control what you share and with whom',
+                'Use simple habits to protect your privacy'
+            ],
+            'content': {
+                'lessons': [
+                    {
+                        'title': 'What Gets Collected',
+                        'content': 'Websites and apps often collect data about you: what you click, where you are, what you buy. They use it for ads or to sell to others. Read privacy policies and app permissions—if something asks for more than it needs (e.g. contacts, camera) for no clear reason, be cautious.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Settings and Choices',
+                        'content': 'Use privacy and security settings: limit ad tracking, turn off location when you don’t need it, and choose who can see your posts. Use a separate email for sign-ups and shopping so your main inbox stays cleaner and less exposed.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Passwords and Logins',
+                        'content': 'Reusing the same password everywhere means one leak can unlock many accounts. Use a password manager and strong, unique passwords. Turn on two-factor authentication (2FA) wherever possible so even if someone has your password, they still can’t get in.',
+                        'interactive': None
+                    }
+                ]
+            }
+        },
+        'scams': {
+            'title': 'Real-World Scam Alerts',
+            'learning_objectives': [
+                'Recognize common refund, tech-support, and prize scams',
+                'Know what to do when something feels off',
+                'Protect your money and identity'
+            ],
+            'content': {
+                'lessons': [
+                    {
+                        'title': 'Fake Refunds and Invoices',
+                        'content': 'Scammers send emails or messages pretending to be your bank, a shop, or the tax office. They say you’re due a refund or must pay a fake invoice and ask you to click a link or call a number. Real organizations don’t ask for passwords or payments this way. Go to the real website or call the number on your card or statement.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Tech Support Scams',
+                        'content': 'Someone calls or pops up on your screen saying your computer is infected and they need remote access “to fix it.” Legitimate companies don’t contact you like this. Never give remote access or pay for “support” in these situations. Hang up or close the window and run a real antivirus scan if you’re worried.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Prizes and Too-Good-to-Be-True',
+                        'content': 'You’ve won a lottery, a gift card, or a deal that asks you to pay a fee or give your details first. Real prizes don’t require you to pay to receive them. If it’s too good to be true, it usually is. Don’t send money or personal info; report and block.',
+                        'interactive': None
+                    }
+                ]
+            }
+        },
+        'parent_guide': {
+            'title': 'Parental Guide Overview',
+            'learning_objectives': [
+                'Understand what your child sees on CyberArcade',
+                'Support their learning without doing it for them',
+                'Have conversations about online safety'
+            ],
+            'content': {
+                'lessons': [
+                    {
+                        'title': 'What’s on the Platform',
+                        'content': 'CyberArcade offers learning modules and games for students: passwords, spotting fake messages, safe browsing, and social media safety. Content is written to be age-appropriate. Your child’s progress (e.g. modules completed) can be tracked in their account so you can see what they’ve done.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'How You Can Help',
+                        'content': 'Go through a module or game together sometimes. Ask what they learned and whether they’ve seen anything like it online. Use the same words the platform uses (e.g. “phishing,” “strong password”) so they get used to the ideas. Encourage them to tell you if something online feels weird or pushy.',
+                        'interactive': None
+                    },
+                    {
+                        'title': 'Talking About Safety',
+                        'content': 'Keep conversations calm and open. Let them know they can come to you without being in trouble. Reinforce that they should never share passwords, meet strangers from the internet alone, or send private photos. Revisit these topics as they get older and use more apps and sites.',
+                        'interactive': None
                     }
                 ]
             }
@@ -629,20 +741,14 @@ def get_learning_module(module_id):
 def update_learning_progress(module_id):
     """Update learning module progress"""
     data = request.get_json()
-    user_id = 1  # Default user for demo
-    
-    conn = sqlite3.connect('cyberarcade.db')
-    cursor = conn.cursor()
-    
-    # Update or insert learning progress
-    cursor.execute('''
-        INSERT OR REPLACE INTO learning_progress (user_id, module_id, progress_percentage, last_accessed)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-    ''', (user_id, module_id, data.get('progress', 0)))
-    
-    conn.commit()
-    conn.close()
-    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+    conn = db.get_conn()
+    try:
+        db.upsert_learning_progress(conn, user_id, module_id, data.get('progress', 0))
+    finally:
+        conn.close()
     return jsonify({"success": True})
 
 # Helper functions
@@ -681,12 +787,12 @@ def calculate_points(game_type, data):
 
 def get_user_points(user_id):
     """Get user's total points"""
-    conn = sqlite3.connect('cyberarcade.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT points FROM users WHERE id = ?', (user_id,))
-    result = cursor.fetchone()
-    conn.close()
-    return result[0] if result else 0
+    conn = db.get_conn()
+    try:
+        result = db.execute(conn, 'SELECT points FROM users WHERE id = ?', (user_id,), fetch_one=True)
+        return result[0] if result else 0
+    finally:
+        conn.close()
 
 # Error handlers
 @app.errorhandler(404)

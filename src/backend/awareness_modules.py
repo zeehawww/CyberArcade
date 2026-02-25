@@ -13,6 +13,84 @@ STUDENT_AWARENESS = {
     "content": {
         "sections": [
             {
+                "section_title": "Introduction to Cybersecurity",
+                "concept_explanation": "Cybersecurity means protecting computers, phones, and online accounts from people who try to steal information, money, or control. It's like locking your door and not sharing your house key with strangers.",
+                "real_world_example": "Your school tells you not to share your login details. You understand that those details are valuable, just like money or a bicycle you wouldn't leave unlocked.",
+                "how_attack_works": "Attackers try to trick you, guess passwords, or sneak malicious software onto your device so they can take over your account or see your files.",
+                "warning_signs": "Being asked for your password by someone online, messages that seem too good to be true, or apps that ask for lots of permissions.",
+                "how_to_prevent": "Keep your passwords private, update software, use strong passwords, and ask a trusted adult when something seems strange.",
+                "quiz_mcqs": [
+                    {"q": "What is cybersecurity about?", "options": ["Locking doors", "Protecting your online accounts and devices from bad people", "Playing video games", "Writing code"], "correct": 1},
+                    {"q": "Which is a good cybersecurity habit?", "options": ["Sharing your password with friends", "Using strong passwords and not clicking suspicious links", "Posting your address online", "Ignoring software updates"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "A friend asks for your school account password so they can 'borrow' it for a game. What should you do?", "options": ["Give it to them", "Tell them no and explain it's private; suggest they create their own account", "Change your password then give it", "Tell a teacher you lost the password"], "correct": 1}
+            },
+            {
+                "section_title": "Types of Cyber Threats",
+                "concept_explanation": "There are many threats online, like malware (bad software), phishing (fake messages), social engineering (people tricking you), hacking (breaking into systems), and scams.",
+                "real_world_example": "A classmate gets a weird email with a link; when clicked, malware installs. Another gets a fake friend request asking for money.",
+                "how_attack_works": "Each threat works differently: malware infects a device, phishing tricks you into revealing info, social engineering plays on trust, and hacks exploit weak security.",
+                "warning_signs": "Unknown downloads, urgent or odd messages, people you don't really know asking for favors, doors (accounts) with weak or no locks.",
+                "how_to_prevent": "Learn the common threats, be cautious with links and downloads, verify people before trusting, and keep your devices and passwords strong.",
+                "quiz_mcqs": [
+                    {"q": "Which of these is NOT a type of cyber threat?", "options": ["Phishing", "Malware", "Ice cream", "Social engineering"], "correct": 2},
+                    {"q": "What does malware do?", "options": ["Cools your computer", "Runs without your permission and can damage data", "Makes your screen brighter", "Saves your game progress"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You get a message about a prize and click the link; a program starts installing and you didn't expect it. What type of threat is this?", "options": ["Phishing", "Malware", "Social engineering", "Hacking"], "correct": 1}
+            },
+            {
+                "section_title": "Safe Browsing Habits",
+                "concept_explanation": "Browsing safely means visiting only trusted websites, looking for HTTPS and padlock icons, and not clicking on suspicious pop‑ups or ads.",
+                "real_world_example": "A student avoids a 'free movie' link on a sketchy site and instead watches on a legitimate streaming service, avoiding malware.",
+                "how_attack_works": "Malicious sites trick you into downloading bad files or steal your info when you type it in.",
+                "warning_signs": "'Free stuff' pop-ups, sites that keep redirecting you, URLs that look weird or misspelled.",
+                "how_to_prevent": "Type addresses yourself or use bookmarks, avoid clicking ads, close sketchy tabs, and keep your browser updated.",
+                "quiz_mcqs": [
+                    {"q": "What is a sign of a suspicious website?", "options": ["Padlock icon in the address bar", "URL with strange spelling like 'g00gle.com'", "Easy-to-read content", "HTTPS prefix"], "correct": 1},
+                    {"q": "If a site has lots of pop-ups saying you won a prize, you should:", "options": ["Click them", "Leave the site and don't download anything", "Enter your password to claim it", "Share it with friends"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You land on a site that says 'Your computer is infected! Click here to scan.' What do you do?", "options": ["Click the scan button", "Close the tab and run a real antivirus program if you're worried", "Share it on social media", "Restart your device"], "correct": 1}
+            },
+            {
+                "section_title": "Email Security Basics",
+                "concept_explanation": "Emails can carry links and attachments that are dangerous. Only open messages from people you know, and don't click links asking for passwords or money.",
+                "real_world_example": "A student receives an email with an attachment claiming to be homework. Opening it installs malware.",
+                "how_attack_works": "Attackers send emails pretending to be someone else, including links to fake login pages or harmful attachments.",
+                "warning_signs": "Unexpected attachments, messages asking for personal info, emails from odd addresses.",
+                "how_to_prevent": "Verify sender addresses, don't open attachments from strangers, hover over links to see where they go, and when in doubt ask an adult.",
+                "quiz_mcqs": [
+                    {"q": "An email from a friend has an attachment you weren't expecting. You should:", "options": ["Open it immediately", "Check with your friend before opening", "Forward to others", "Delete your inbox"], "correct": 1},
+                    {"q": "What should you do before clicking a link in an email?", "options": ["Hover to see the real URL", "Click right away", "Reply 'Thanks'", "Post it online"], "correct": 0}
+                ],
+                "scenario_question": {"scenario": "You get an email saying your password will expire and includes a link to 'renew'. The sender address looks slightly odd. What do you do?", "options": ["Click the link and enter your password", "Ignore it and log in to the site the normal way to check the notice", "Reply asking if it's real", "Forward it to your teacher"], "correct": 1}
+            },
+            {
+                "section_title": "Mobile Security Basics",
+                "concept_explanation": "Phones and tablets can also get infected. Keep them updated, only install apps from official stores, and avoid public Wi‑Fi for sensitive tasks.",
+                "real_world_example": "A student installs a 'free' game APK from a website and the app steals their login data.",
+                "how_attack_works": "Malicious apps or network snooping on public Wi‑Fi can pick up passwords or personal info.",
+                "warning_signs": "Apps asking for too many permissions, slow performance after installing a new app, warnings about unknown certificates.",
+                "how_to_prevent": "Use the official app store, check app permissions, install updates, and use mobile data or a VPN instead of unknown Wi‑Fi.",
+                "quiz_mcqs": [
+                    {"q": "Where should you install apps from?", "options": ["Any website", "Official app store (Google Play/App Store)", "A friend’s link", "Email attachment"], "correct": 1},
+                    {"q": "Why should you avoid using public Wi‑Fi for logging into your email?", "options": ["It’s slow", "It may let others see what you type", "It's expensive", "It drains battery"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You're at a café with free Wi‑Fi and want to check your bank account on your phone. What do you do?", "options": ["Use the café Wi‑Fi and log in", "Use mobile data or a VPN, not the open Wi‑Fi", "Ask the barista for their password", "Don't check at all"], "correct": 1}
+            },
+            {
+                "section_title": "Cyberbullying & Online Etiquette",
+                "concept_explanation": "Being kind and respectful online keeps you and others safe. Cyberbullying is when someone uses the internet to hurt or embarrass someone else.",
+                "real_world_example": "A classmate posts mean comments on another’s game video causing them to feel upset.",
+                "how_attack_works": "Bullies may spread rumors, post private messages, or pressure others; they rely on anonymity and audience.",
+                "warning_signs": "Repeated mean messages, being excluded from groups, pressure to share secrets or photos.",
+                "how_to_prevent": "Don't join in bullying, block or report bullies, think before you post, and talk to a trusted adult if you or a friend is targeted.",
+                "quiz_mcqs": [
+                    {"q": "If someone keeps sending you nasty messages, you should:", "options": ["Respond with mean messages", "Block them and tell a trusted adult", "Share your password", "Quit the internet"], "correct": 1},
+                    {"q": "How should you treat others online?", "options": ["Say whatever you want since it’s not real", "Treat them as you would in person and respect their feelings", "Only be nice to people you know", "Only post funny stuff"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You see a group chat where someone is making fun of another student. What do you do?", "options": ["Join in to fit in", "Tell them to stop and, if it continues, leave the chat and tell an adult", "Ignore it and scroll away", "Share the chat with others"], "correct": 1}
+            },
+            {
                 "section_title": "Phishing: When Messages Try to Trick You",
                 "concept_explanation": "Phishing is when someone sends you a message (email, DM, or text) that looks real but is meant to steal your password, money, or personal info. They pretend to be your school, a game company, or a friend to get you to click a link or type your password somewhere fake.",
                 "real_world_example": "A student gets a DM that says 'Your Roblox account will be banned in 24 hours. Click here to verify.' The link goes to a fake login page. When they enter their password, the scammer takes over their account.",
@@ -70,7 +148,7 @@ STUDENT_AWARENESS = {
             },
             {
                 "section_title": "Privacy and Data Protection",
-                "concept_explanation": "What you post and share online can be seen, saved, and spread. Privacy settings control who sees your posts and profile. Once something is online, it's hard to take back. Some apps and sites collect a lot of data about you—know what you're sharing.",
+                "concept_explanation": "What you post and share online can be seen, saved, and spread. Think of your digital footprint as the trail of posts and info you leave – treat it like a diary you wouldn't want strangers to read. Privacy settings control who sees your posts and profile. Once something is online, it's hard to take back. Some apps and sites collect a lot of data about you—know what you're sharing and protect it like you protect your personal documents.",
                 "real_world_example": "A student posts their school name and a photo of their team jersey. Someone they don't know uses that to find their school and send them messages pretending to go there. Later they realize their profile was public and had too much info.",
                 "how_attack_works": "Information you share (location, school, photos, habits) can be used to target you with scams, bullying, or grooming. Apps and sites may collect data and use it for ads or sell it. Public or loose privacy settings mean more people can see and misuse your info.",
                 "warning_signs": "Profile is public so anyone can see posts, location is on for all posts, sharing full name and school in bio, accepting follow requests from people you don't know, apps asking for more permissions than they need (e.g. contacts, camera for a simple game).",
@@ -106,24 +184,64 @@ STUDENT_AWARENESS = {
 # DIGITAL CITIZEN AWARENESS MODULE
 # ---------------------------------------------------------------------------
 DIGITAL_CITIZEN_AWARENESS = {
-    "title": "Cybersecurity Awareness for Digital Citizens",
-    "target_audience": "This module is for everyday internet users: people who bank online, shop, use email and social media, and want to protect themselves and their family from scams, fraud, and privacy risks.",
-    "learning_objective": "Develop a cautious, verifying mindset: question unexpected requests, verify before you act, and protect your identity and finances.",
+    "title": "Enterprise Mode: Employee Cybersecurity Training",
+    "target_audience": "This module is for employees in any organisation who handle company data, communicate by email, use cloud tools, or work remotely. It uses workplace scenarios and practical rules that reduce risk for both the individual and the business.",
+    "learning_objective": "Build a security-aware work culture: verify before acting, protect company and customer data, follow policies, and report incidents promptly.",
     "content": {
         "sections": [
             {
-                "section_title": "Phishing: Don't Get Hooked by Fake Messages",
-                "concept_explanation": "Phishing is when criminals send emails, texts, or messages that look like they're from your bank, a shop, or a service you use. The goal is to get you to click a link or open an attachment so they can steal your password, card details, or personal information.",
-                "real_world_example": "You get an email that looks like it's from your bank saying there's a problem with your account and you must 'verify' by clicking a link. The link goes to a fake site that captures your login details. The criminal then empties your account.",
-                "how_attack_works": "You receive a message that looks legitimate and creates urgency (account locked, refund, delivery issue). You click a link or open an attachment. You enter your details on a fake site or the attachment installs malware. The attacker uses your data to steal money or identity.",
-                "warning_signs": "Urgent or threatening language, sender address that doesn't match the real company (e.g. @bank-secure.com instead of @yourbank.com), generic greetings ('Dear Customer'), links that show a different URL when you hover, requests for password or card number by email or message.",
-                "how_to_prevent": "Don't click links in emails or messages about your account. Open your browser and type the real website address or use your saved bookmark, then log in. Don't open attachments from senders you don't know or weren't expecting. If in doubt, call the company using the number on their official website or your card.",
+                "section_title": "Information Security Fundamentals",
+                "concept_explanation": "Information security means protecting data from unauthorized access, use, disclosure, disruption, modification, or destruction. It is not just about computers—it includes paper records and conversations. The three pillars are Confidentiality (only the right people see data), Integrity (data is accurate and unaltered), and Availability (data is accessible when needed).",
+                "real_world_example": "A company stores customer records only on encrypted servers, restricts access to staff who need it, and keeps backups so records are always available. An employee who prints a report and leaves it on a public printer violates confidentiality.",
+                "how_attack_works": "If access controls are weak, someone without authorisation may view, steal, or alter sensitive information—whether a customer database, financial records, or internal strategy documents.",
+                "warning_signs": "Sensitive documents left on desks or printers, shared drives with no password, people sharing login credentials, systems accessed outside working hours for no clear reason.",
+                "how_to_prevent": "Follow company guidelines for data handling, lock your screen when away from your desk, use only approved storage and sharing methods, and report any policy gaps you notice to IT or your manager.",
                 "quiz_mcqs": [
-                    {"q": "Your bank emails asking you to click a link to 'secure your account.' What should you do?", "options": ["Click the link", "Don't click; go to the bank's real website yourself and log in there to check", "Reply to the email", "Forward the email to the bank"], "correct": 1},
-                    {"q": "Which is a common sign of a phishing email?", "options": ["It has no images", "It uses urgent language and asks you to act immediately", "It's long", "It's from a friend"], "correct": 1},
-                    {"q": "Where is it safe to enter your bank password?", "options": ["On a page you reached by clicking a link in an email", "Only on the bank's real website after you typed the URL or used a bookmark", "In a reply to an email", "In a text message"], "correct": 1}
+                    {"q": "What is the primary goal of information security?", "options": ["Make files look tidy", "Protect data from unauthorised access, change, or loss", "Speed up the network", "Delete old emails"], "correct": 1},
+                    {"q": "Which practice best protects information security?", "options": ["Sharing passwords with colleagues", "Locking your computer when you leave your desk", "Posting confidential info in a public chat", "Using the same password everywhere"], "correct": 1}
                 ],
-                "scenario_question": {"scenario": "You get a text saying your card was used for a big purchase and to call a number to dispute it. You're not sure if you made the purchase. What do you do?", "options": ["Call the number in the text", "Call the number on the back of your card or your bank's official website to check", "Reply to the text", "Ignore it"], "correct": 1}
+                "scenario_question": {"scenario": "You print a report containing customer data and leave it on the shared printer overnight. What should you have done?", "options": ["Left it; someone else might need it", "Collected it immediately and stored or shredded it securely", "Thrown it in the bin", "Emailed a copy to yourself"], "correct": 1}
+            },
+            {
+                "section_title": "Organizational Security Policies",
+                "concept_explanation": "Security policies are rules the organisation sets about passwords, device use, remote access, data handling, and more. They exist to standardise safe behaviour and reduce risk. Ignoring them—even accidentally—can create gaps attackers exploit.",
+                "real_world_example": "Your employer requires you to change your password every 90 days and forbids installing unapproved software. An employee who installs a free utility from an unknown site violates policy and may introduce malware.",
+                "how_attack_works": "Bypassing policies—using personal devices for work, ignoring update prompts, sharing accounts—creates unmonitored entry points that attackers can use to access systems or data.",
+                "warning_signs": "Colleagues bypassing rules, using personal devices or apps for work, ignoring software update prompts, sharing login credentials.",
+                "how_to_prevent": "Read and follow the security policy, ask IT or your manager if something is unclear, and report policy violations you observe through the proper channel.",
+                "quiz_mcqs": [
+                    {"q": "What should you do if a security policy is unclear?", "options": ["Ignore it", "Ask your manager or IT for clarification", "Guess and hope for the best", "Search the internet"], "correct": 1},
+                    {"q": "Why do organisations have security policies?", "options": ["To make work harder", "To standardise safe behaviour and reduce risk", "To fill compliance checklists", "To confuse employees"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "A colleague asks to use your login because they forgot theirs. Policy states accounts must not be shared. What do you do?", "options": ["Share your login to be helpful", "Tell them to use the self-service password reset or contact IT", "Let them borrow your laptop while logged in", "Ignore them"], "correct": 1}
+            },
+            {
+                "section_title": "Phishing & Spear Phishing",
+                "concept_explanation": "Phishing is a mass-sent fake message (email, text, or call) designed to steal credentials, money, or data. Spear phishing is a targeted version—attackers research a specific person or team (using LinkedIn, company websites, or leaked data) and craft a convincing, personalised message. In a work context both are used to steal login details, trick staff into transferring money, or deploy malware.",
+                "real_world_example": "A finance employee receives an email that appears to come from their CFO, uses their real name, references an ongoing project, and asks them to click a link to 'review an updated invoice.' The link goes to a fake login page. After entering credentials, the attacker accesses the company's finance system.",
+                "how_attack_works": "Attacker gathers information about the target (name, role, colleagues, current projects). They craft a convincing email with correct branding and context. The employee clicks a link or opens an attachment. Credentials are captured or malware is installed. The attacker then uses that access for fraud or further attacks.",
+                "warning_signs": "Unexpected urgency or pressure to act immediately; sender address that doesn't match the real domain exactly; links that display a different URL when hovered; requests to 'verify', 'reset' or 'confirm' credentials via a link; messages referencing real colleagues or projects to seem legitimate.",
+                "how_to_prevent": "Never click credential or payment links in email—go directly to the system yourself. Hover over links to see the real destination before clicking. Report suspicious emails to IT using the phishing report button or process. Attend simulated phishing training so you recognise the patterns before a real attack arrives.",
+                "quiz_mcqs": [
+                    {"q": "What distinguishes spear phishing from regular phishing?", "options": ["It uses harder words", "It is targeted and personalised using research about the recipient", "It only targets IT staff", "It uses phone calls instead of email"], "correct": 1},
+                    {"q": "You receive an email that looks like your company's IT helpdesk asking you to verify your password via a link. You should:", "options": ["Click the link and verify", "Log in to the real system yourself to check for any notices", "Reply with your password", "Forward to a colleague"], "correct": 1},
+                    {"q": "What is a key warning sign of a phishing email?", "options": ["It has no images", "It creates urgency and asks you to click a link or open an attachment", "It is long", "It has a friendly tone"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You receive an email appearing to be from HR with your name and employee number, asking you to update your payroll bank details by clicking a link. What do you do?", "options": ["Click the link and update your details", "Do not click; contact HR directly through their known contact details to verify", "Reply to the email asking if it is real", "Forward to your manager"], "correct": 1}
+            },
+            {
+                "section_title": "Business Email Compromise (BEC)",
+                "concept_explanation": "Business Email Compromise (BEC) is a targeted scam where attackers impersonate an executive, manager, or trusted supplier—via a spoofed or compromised email account—to trick employees into transferring money, changing payment details, or sharing sensitive data. BEC attacks are carefully researched and do not need malicious links or attachments to succeed.",
+                "real_world_example": "A supplier's email account is compromised. The attacker sends a message to your accounts payable team from the real supplier address, with a legitimate invoice, but replaces the bank account number with their own. The team processes the payment—only noticing weeks later when the real supplier chases payment.",
+                "how_attack_works": "Attackers research the organisation's structure, key vendors, and ongoing deals (via social media, leaked documents, or a compromised email). They send a convincing request—often a payment change, urgent wire transfer, or payroll redirect—that mimics normal communication. They may add pressure ('CEO is travelling,' 'deal closes today') to prevent verification.",
+                "warning_signs": "Requests to change bank or payment details arriving only by email; urgency or secrecy ('do not discuss with others'); a reply-to address that differs from the sender; last-minute changes to wire instructions before a deal closes; requests that bypass normal approval processes.",
+                "how_to_prevent": "Always verify payment or bank-detail change requests through a separate, trusted channel—call the person on a known number before processing. Follow the organisation's dual-authorisation process for transfers above a set threshold. Never rely solely on email confirmation for financial actions.",
+                "quiz_mcqs": [
+                    {"q": "What makes BEC attacks particularly dangerous?", "options": ["They use complex malware", "They rely on trust and impersonation—no malicious link or attachment is needed", "They only target large companies", "They are always sent from unknown senders"], "correct": 1},
+                    {"q": "You receive an email from what appears to be your CEO asking for an urgent wire transfer before the end of day. What should you do?", "options": ["Process it immediately", "Verify through a separate trusted channel such as a known phone number before taking action", "Reply to the email asking for confirmation", "Forward to a colleague to handle"], "correct": 1},
+                    {"q": "A supplier emails to say their bank details have changed. Your next step should be:", "options": ["Update the details and process the next payment", "Call the supplier on a number you already have to verify before changing anything", "Reply to the email to confirm", "File the email and update later"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "An email from 'the CEO' says to buy 10 gift cards for a client surprise and send the codes urgently. The sender domain looks slightly different. What do you do?", "options": ["Buy the cards and send codes", "Do not act; verify directly with the CEO via an internal channel and treat this as a likely BEC attempt", "Forward to finance to handle", "Reply asking for clarification"], "correct": 1}
             },
             {
                 "section_title": "Malware and Ransomware: Protecting Your Devices and Data",
@@ -180,22 +298,128 @@ DIGITAL_CITIZEN_AWARENESS = {
                     {"q": "Who can see your posts if your account is set to 'Public'?", "options": ["Only friends", "Anyone on the internet", "Only you", "Only people you tag"], "correct": 1}
                 ],
                 "scenario_question": {"scenario": "You're about to post a family photo that shows your home address in the background. What should you do?", "options": ["Post it as is", "Don't post it, or crop/edit so the address isn't visible, and check your privacy settings", "Post it but make the account private later", "Post it only to close friends"], "correct": 1}
+            },
+
+            {
+                "section_title": "Secure Remote Work Practices",
+                "concept_explanation": "When working from home or elsewhere, use VPNs, keep devices updated, and avoid public Wi‑Fi without protection. Your home network should be as secure as the office.",
+                "real_world_example": "An employee uses a company VPN to access files from home, and locks their laptop when not in use.",
+                "how_attack_works": "Attackers on the same public network can intercept unencrypted data or infect your device with malware.",
+                "warning_signs": "Using public Wi‑Fi without VPN, leaving your laptop unlocked in public, or mixing personal with work data on the same device.",
+                "how_to_prevent": "Always connect via the corporate VPN, install updates promptly, use strong passwords and lock your screen, and separate work and personal use.",
+                "quiz_mcqs": [
+                    {"q": "What is a safe way to access company resources from a café?", "options": ["Connect using the company VPN", "Use the café's Wi‑Fi directly", "Share your password with a friend", "Use someone else's device"], "correct": 0},
+                    {"q": "Why should you lock your laptop when you're away?", "options": ["It looks professional", "To prevent someone else from using it and possibly exposing company data", "To save power", "To keep dust out"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You're working from a library and the Wi‑Fi asks you to enter your email to access it. What should you do?", "options": ["Use your work email and password to get on", "Avoid using that network for work and use VPN or mobile data instead", "Ignore it and leave the network", "Pay for the Wi‑Fi"], "correct": 1}
+            },
+            {
+                "section_title": "Endpoint Security",
+                "concept_explanation": "Endpoints are devices like laptops and phones that connect to the company network. They need antivirus, updates, and controls to stop malware and unauthorized access.",
+                "real_world_example": "The company installs antivirus and enforces updates on all employee laptops; one laptop catches malware and IT quarantines it before it spreads.",
+                "how_attack_works": "An unprotected device can be infected and then used as a foothold to reach other systems on the network.",
+                "warning_signs": "Slow performance, unexpected pop-ups, or security software disabled.",
+                "how_to_prevent": "Keep your device's operating system and apps updated, don't disable security tools, and report anything unusual to IT.",
+                "quiz_mcqs": [
+                    {"q": "What should you do if your company laptop starts showing strange pop-ups?", "options": ["Ignore them", "Report to IT immediately", "Turn off and on repeatedly", "Install a random app to fix it"], "correct": 1},
+                    {"q": "Why is endpoint security important?", "options": ["It makes laptops look nicer", "To prevent infected devices from bringing malware into the company network", "It speeds up the internet", "It allows remote control by anyone"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You borrow a friend's USB drive and plug it into your work laptop. Later you notice odd files. What should you do?", "options": ["Keep using it", "Disconnect the drive, don't open any files, and inform IT about the possible infection", "Format the drive yourself", "Turn off the laptop"], "correct": 1}
+            },
+            {
+                "section_title": "Data Classification & Handling",
+                "concept_explanation": "Data is often labeled (e.g., public, internal, confidential) and must be handled accordingly. Confidential data needs extra protection like encryption and limited access.",
+                "real_world_example": "A spreadsheet marked confidential is stored in an encrypted folder and only shared with people who need it.",
+                "how_attack_works": "If confidential data is accidentally emailed to the wrong person or left on a public drive, it can be leaked and cause harm.",
+                "warning_signs": "Seeing sensitive info in email without warning labels or in shared drives open to everyone.",
+                "how_to_prevent": "Check classification labels, follow handling rules (e.g., encrypt, use approved sharing), and double-check recipients before sending.",
+                "quiz_mcqs": [
+                    {"q": "What should you do before emailing a file marked 'Confidential'?", "options": ["Just send it", "Ensure the recipient is authorized and use encryption or approved secure tools", "Post it in a public chat", "Print it and walk it over"], "correct": 1},
+                    {"q": "Why classify data?", "options": ["So everyone knows what it's about", "So the right protection measures are used depending on sensitivity", "For fun", "Because IT likes labels"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You need to share customer contact details with a contractor. The data is labeled 'Internal Only.' What do you do?", "options": ["Email it directly", "Check your company's policy and ask if you can share, using a secure method if allowed", "Put it on a public website", "Text it"], "correct": 1}
+            },
+            {
+                "section_title": "Insider Threat Awareness",
+                "concept_explanation": "Insiders are people with access to systems or data. Some may accidentally or intentionally misuse that access, so everyone should be alert to unusual behavior.",
+                "real_world_example": "An employee copies sensitive files to a USB and leaves them in a public area, which are later found by a stranger.",
+                "how_attack_works": "Insiders can steal, leak, or manipulate data; even well-meaning mistakes (sending to wrong email) can cause breaches.",
+                "warning_signs": "Colleagues accessing data they don't need, using personal accounts for work, or acting secretive.",
+                "how_to_prevent": "Follow least-privilege principles, report suspicious actions, and use monitoring tools the company provides.",
+                "quiz_mcqs": [
+                    {"q": "What is an insider threat?", "options": ["A hacker from outside", "A risk posed by someone with legitimate access who misuses it, whether accidentally or intentionally", "A new employee", "A software update"], "correct": 1},
+                    {"q": "If you see a coworker downloading large amounts of data they don't need, you should:", "options": ["Ignore it", "Report it through the proper channel anonymously if needed", "Join them", "Ask for some of the data"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You overhear a colleague say they'll email customer info to take home 'to work on it.' The company policy forbids emailing such data. What do you do?", "options": ["Say nothing", "Remind them of policy and, if they don't stop, report it to your manager or security team", "Offer to help them", "Send the email yourself"], "correct": 1}
+            },
+            {
+                "section_title": "Incident Reporting Procedures",
+                "concept_explanation": "If you notice a security problem (phishing email, lost device, suspicious activity), you should report it immediately using the company's incident reporting process.",
+                "real_world_example": "An employee clicks a phishing link and notices unusual network behavior; they notify IT using the incident form and the issue is contained quickly.",
+                "how_attack_works": "Delayed reporting gives attackers time to move laterally or exfiltrate data, making recovery harder.",
+                "warning_signs": "Unusual emails, unknown devices on the network, unexpected password prompts, or lost/stolen equipment.",
+                "how_to_prevent": "Know the reporting process (phone number, form, email), act quickly, and don't be embarrassed—early reports help everyone.",
+                "quiz_mcqs": [
+                    {"q": "What should you do if you think you clicked a phishing link?", "options": ["Nothing", "Report it right away to IT using the proper channel", "Try to fix it yourself", "Wait until later"], "correct": 1},
+                    {"q": "Why is timely incident reporting important?", "options": ["It makes you look good", "It allows the security team to contain the issue before it spreads", "It keeps IT busy", "It's not important"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You find a USB drive in the company parking lot. What do you do?", "options": ["Plug it into your computer to see what's on it", "Turn it in to IT or security without plugging it in", "Leave it there", "Throw it away"], "correct": 1}
+            },
+            {
+                "section_title": "Secure Cloud Usage",
+                "concept_explanation": "Cloud services (like Google Drive, Dropbox, AWS) are convenient but require secure configuration, strong passwords, and proper sharing settings.",
+                "real_world_example": "A team accidentally leaves an S3 bucket public, exposing customer data. They then tighten permissions and enable logging.",
+                "how_attack_works": "Misconfigured cloud storage or excessive sharing can leak data to the internet.",
+                "warning_signs": "Shared links with 'anyone with the link' access, unprotected buckets, or unknown files appearing in your cloud account.",
+                "how_to_prevent": "Use approved cloud services, follow sharing guidelines, use MFA, and verify permissions before sharing.",
+                "quiz_mcqs": [
+                    {"q": "What is a risky cloud sharing setting?", "options": ["Only people in the company can view", "Anyone with the link can edit", "A password-protected link", "No sharing"], "correct": 1},
+                    {"q": "If you see files in a shared drive that shouldn't be there, you should:", "options": ["Delete them", "Notify the owner or IT to fix permissions", "Share them with everyone", "Ignore them"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You need to send a report to a contractor. The easiest way is to create a public link in your cloud storage. What should you do?", "options": ["Create the public link", "Share the file with their company account or ask IT for a secure transfer method", "Email it as an attachment", "Put it on social media"], "correct": 1}
+            },
+            {
+                "section_title": "Compliance & Regulatory Basics",
+                "concept_explanation": "Laws like GDPR and standards like ISO 27001 require organizations to protect personal and sensitive data. Employees play a role by following policies and reporting breaches.",
+                "real_world_example": "A company subject to GDPR must notify customers within 72 hours if their personal data is exposed. Failing to do so can result in heavy fines.",
+                "how_attack_works": "Data breaches can trigger legal obligations; not following rules can lead to penalties and loss of trust.",
+                "warning_signs": "Handling customer data carelessly, or not knowing which rules apply to your work.",
+                "how_to_prevent": "Be aware of applicable laws, follow company procedures for data handling and breach reporting, and attend any required compliance training.",
+                "quiz_mcqs": [
+                    {"q": "What does GDPR mainly protect?", "options": ["Company secrets", "Personal data of individuals in the EU", "Internet speeds", "Employee salaries"], "correct": 1},
+                    {"q": "What might happen if a regulated company fails to report a data breach?", "options": ["Nothing", "They could face fines and legal action", "They get a bonus", "They get more customers"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You discover customer email addresses were accidentally posted to a public website. What should you do?", "options": ["Ignore it", "Report it immediately to the compliance/security team so they can notify affected individuals as required", "Delete the website yourself", "Tell your manager tomorrow"], "correct": 1}
+            },
+            {
+                "section_title": "Physical Security Awareness",
+                "concept_explanation": "Keeping the physical workplace secure is part of cybersecurity. Lock doors, badge in visitors, and don't leave sensitive papers or devices unattended.",
+                "real_world_example": "A locked server room prevents a stranger from plugging in a rogue device. A visitor is escorted and badged while in the building.",
+                "how_attack_works": "Physical access can let attackers plug in malware, steal laptops, or read confidential documents left on desks.",
+                "warning_signs": "Doors propped open, unknown people in restricted areas, unattended unlocked laptops or printed documents.",
+                "how_to_prevent": "Always lock doors, challenge or report strangers, keep devices and papers secure, and follow visitor procedures.",
+                "quiz_mcqs": [
+                    {"q": "What should you do if you see someone without a badge in a restricted area?", "options": ["Ignore them", "Ask if they need assistance or report to security", "Give them a badge", "Follow them"], "correct": 1},
+                    {"q": "Why shouldn't you leave your laptop unlocked on your desk?", "options": ["It looks messy", "Someone could walk by and access it or steal it", "It uses too much power", "It's against the law"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You find the server room door open and no one around. What should you do?", "options": ["Go in and check", "Close and lock the door, then notify security or IT", "Leave it open", "Leave and forget about it"], "correct": 1}
             }
         ],
         "final_assessment": [
-            {"scenario": "An email says your tax refund is ready and you must click a link to receive it. What do you do?", "options": ["Click the link", "Don't click. Use the official tax authority website or contact them through known channels to check refund status", "Reply to the email", "Forward to your accountant"], "correct": 1},
-            {"scenario": "A caller says they're from your bank and need you to confirm your full card number to 'release a hold.' What do you do?", "options": ["Give the number", "Hang up and call the number on the back of your card to verify", "Give the last 4 digits", "Ask them to email you"], "correct": 1},
-            {"scenario": "A pop-up on a website says your computer is infected and you must call a number. What do you do?", "options": ["Call the number", "Close the tab. Don't call; legitimate security software doesn't ask this way", "Click 'Remove virus'", "Restart the computer"], "correct": 1},
-            {"scenario": "You get a text with a link to 'track your delivery.' You did order something. What do you do?", "options": ["Click the link in the text", "Go to the real delivery company or retailer website yourself and track with your order number", "Reply to the text", "Ignore it"], "correct": 1},
-            {"scenario": "Your sibling messages from a new number saying their phone was stolen and they need money wired to a new account. What do you do?", "options": ["Wire the money", "Contact your sibling on a number or channel you already trust to confirm before sending money", "Send a small amount first", "Ignore the message"], "correct": 1}
+            {"scenario": "You receive a spear phishing email that uses your real name, mentions your manager, and asks you to click a link to reset your work password. What do you do?", "options": ["Click the link and reset", "Do not click; go directly to your company's IT portal yourself and report the email to IT security", "Reply asking if it is real", "Forward to your manager"], "correct": 1},
+            {"scenario": "An email from 'the CFO' asks you to urgently wire funds to a new account for a confidential deal. No one else should know. What do you do?", "options": ["Process the wire immediately", "Do not act; verify through a separate trusted channel (e.g. call the CFO on their known number) and follow payment policy", "Reply to the email asking for more details", "Forward to your manager by email"], "correct": 1},
+            {"scenario": "You find a USB drive in the car park outside your office. What do you do?", "options": ["Plug it into your laptop to see what's on it", "Hand it to IT or security without plugging it in; it may contain malware", "Leave it where you found it", "Throw it away"], "correct": 1},
+            {"scenario": "You need to share a confidential report with a contractor. The quickest method is a public cloud link. What do you do?", "options": ["Create the public link and share it", "Use an approved secure method (company file share or secure email) and check with IT if unsure", "Email it as an unencrypted attachment", "Post it on the company intranet"], "correct": 1},
+            {"scenario": "You accidentally click a link in a suspicious email and a page opens briefly before you close it. What do you do?", "options": ["Do nothing since you closed it quickly", "Report it immediately to IT security using the incident reporting process", "Wait to see if anything happens", "Tell a colleague"], "correct": 1}
         ],
-        "risk_score_logic": "Your Personal Risk Awareness Score is based on correct answers in the section quizzes and final assessment. Higher correct answers = higher awareness and lower risk. The score is for this module only and is not stored long-term. Use it to see which topics to review.",
+        "risk_score_logic": "Your Employee Security Awareness Score reflects how many quiz and scenario questions you answered correctly. A higher score means stronger awareness and lower risk to the organisation. The score covers this module only and is not used for performance review. Use it to identify which topics to revisit.",
         "key_takeaways": [
-            "Don't click links in messages about your accounts. Go to the real website yourself and log in there.",
-            "Never give remote access to your computer, or your password or full card details, to someone who contacted you first.",
-            "Use strong, unique passwords and turn on 2FA for email and banking. Use a password manager.",
-            "Back up important files. Don't trust pop-ups that say your device is infected and ask you to call a number.",
-            "Protect your and your family's privacy: limit what you post, lock down privacy settings, and teach kids not to share personal details online."
+            "Verify before acting: never process payments, reset credentials, or share data based on email alone—use a separate, trusted channel.",
+            "Report incidents immediately. Early reporting lets the security team contain issues before they escalate; there is no shame in reporting a mistake.",
+            "Follow data handling rules: use only approved storage and sharing methods; never send confidential data to personal accounts or public links.",
+            "Physical security is cybersecurity: lock your screen, challenge unknown visitors, and never plug in unknown USB drives.",
+            "Use strong, unique passwords and MFA on all work accounts. Never share credentials with colleagues—use proper access requests instead.",
+            "Know your company's incident reporting process and use it the moment something feels wrong."
         ]
     }
 }
@@ -278,6 +502,175 @@ ITPRO_AWARENESS = {
                     {"q": "What is a typical requirement after a breach involving PII?", "options": ["Ignore it", "Contain, assess, notify affected individuals and regulators per applicable law, and document", "Only notify management", "Delete the data"], "correct": 1}
                 ],
                 "scenario_question": {"scenario": "You need to work on a file containing customer PII from home. The approved method is the corporate VPN and sanctioned cloud. Your VPN is down. What do you do?", "options": ["Email the file to your personal email", "Use only approved methods; wait for VPN or use a sanctioned alternative. Don't send PII to personal email or unapproved storage", "Put it on a USB and take it home", "Use a personal cloud account"], "correct": 1}
+            },
+            {
+                "section_title": "Networking Fundamentals",
+                "concept_explanation": "Understanding TCP/IP, the OSI model, and how data moves through networks is the foundation for securing them.",
+                "real_world_example": "Knowing that port 22 is SSH and port 80 is HTTP helps you recognise unexpected open ports during a scan.",
+                "how_attack_works": "Attackers scan networks to find open ports and services they can exploit; misconfigurations make this easier.",
+                "warning_signs": "Unexpected services listening on unusual ports or high traffic on unknown ports.",
+                "how_to_prevent": "Keep unnecessary ports closed, segment networks, and monitor traffic for anomalies.",
+                "quiz_mcqs": [
+                    {"q": "What does the OSI model help you understand?", "options": ["How to cook", "Layers of network communication", "Music theory", "Passwords"], "correct": 1},
+                    {"q": "Why block unused ports on a firewall?", "options": ["To make it faster", "To reduce the attack surface by limiting entry points", "To save power", "To confuse attackers"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "A scanning tool shows port 3389 (RDP) open on a server that shouldn't have remote desktop enabled. What do you do?", "options": ["Ignore it", "Investigate and close or secure the service; unauthorized RDP can be an entry for attackers", "Open more ports", "Change the server name"], "correct": 1}
+            },
+            {
+                "section_title": "Cryptography Basics",
+                "concept_explanation": "Cryptography uses algorithms to protect data by transforming it into unreadable form unless you have the key. Symmetric uses one key, asymmetric uses a public/private pair, and hashing produces fixed-size digests.",
+                "real_world_example": "HTTPS uses asymmetric cryptography to establish a secure connection, then symmetric cryptography for data transfer.",
+                "how_attack_works": "Weak keys or poor implementation can be broken, exposing the data.",
+                "warning_signs": "Using outdated algorithms (MD5, SHA1) or unencrypted protocols (HTTP instead of HTTPS).",
+                "how_to_prevent": "Use strong, modern algorithms and proper key management; encrypt sensitive data in transit and at rest.",
+                "quiz_mcqs": [
+                    {"q": "Which is an asymmetric algorithm?", "options": ["AES", "RSA", "SHA-256", "Blowfish"], "correct": 1},
+                    {"q": "What does hashing do?", "options": ["Encrypts data so it can be decrypted", "Produces a fixed-size fingerprint of data, not meant to be reversed", "Slows down the network", "Generates keys"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "A developer stores passwords in the database using MD5 hashing. What is the issue?", "options": ["Nothing, MD5 is secure", "MD5 is weak and can be reversed with modern tools; use a stronger hash with salt", "The passwords are too long", "Passwords should be in plain text"], "correct": 1}
+            },
+            {
+                "section_title": "Web Application Security (OWASP Top 10)",
+                "concept_explanation": "Web apps are common attack targets. The OWASP Top 10 lists common issues like SQL injection, XSS, and insecure deserialization.",
+                "real_world_example": "A forum allows users to submit posts without escaping input; an attacker injects a script that steals other users' cookies.",
+                "how_attack_works": "Unsanitized input or improper configuration lets attackers execute code, access data, or escalate privileges.",
+                "warning_signs": "Applications crash with unusual inputs, or error messages reveal database queries.",
+                "how_to_prevent": "Validate and sanitize input, use prepared statements, keep frameworks updated, and perform regular security testing.",
+                "quiz_mcqs": [
+                    {"q": "What is SQL injection?", "options": ["Injecting SQL to speed up queries", "Entering malicious database commands through input fields", "Updating software", "A type of malware"], "correct": 1},
+                    {"q": "Which practice helps prevent XSS?", "options": ["Encoding output before rendering on pages", "Using public Wi‑Fi", "Disabling JavaScript", "Encrypting cookies"], "correct": 0}
+                ],
+                "scenario_question": {"scenario": "You find an input field that reflects your input back without changes and allows <script> tags. What should you do?", "options": ["Ignore it", "Report it as a potential XSS vulnerability to the development team", "Use it to execute arbitrary scripts on the site", "Disable your browser"], "correct": 1}
+            },
+            {
+                "section_title": "Vulnerability Assessment & Penetration Testing",
+                "concept_explanation": "Assessments identify weaknesses; penetration tests simulate attacks to exploit them. Both help you fix issues before real attackers do.",
+                "real_world_example": "A company hires a tester who finds an unpatched web server; the IT team updates it before attackers notice.",
+                "how_attack_works": "Attackers use automated tools and manual techniques to find and exploit weaknesses, often the same ones testers look for.",
+                "warning_signs": "Outdated software, default credentials, missing patches, or error messages revealing details.",
+                "how_to_prevent": "Regularly run scans, apply patches, conduct authorized penetration tests, and remediate findings.",
+                "quiz_mcqs": [
+                    {"q": "What is the purpose of a penetration test?", "options": ["To deploy malware", "To simulate an attack under controlled conditions to find exploitable vulnerabilities", "To increase network speed", "To confuse IT"], "correct": 1},
+                    {"q": "Which is a sign you should patch a system?", "options": ["It’s running slow", "A vendor security advisory says it’s vulnerable", "It has a lot of users", "It’s new"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "A scan report shows a critical vulnerability in an internet‑facing application. What should you do?", "options": ["Ignore it", "Take the application offline or apply the patch immediately and verify the fix", "Delete the application", "Open more ports"], "correct": 1}
+            },
+            {
+                "section_title": "Secure Coding Practices",
+                "concept_explanation": "Writing code with security in mind—validating input, handling errors, and avoiding hard-coded secrets—reduces bugs that attackers can exploit.",
+                "real_world_example": "A developer uses parameterized queries instead of concatenating strings, preventing SQL injection.",
+                "how_attack_works": "Code flaws create vulnerabilities; attackers look for common mistakes in code repositories or compiled binaries.",
+                "warning_signs": "Code that trusts user input, contains TODO comments about security, or stores credentials in plain text.",
+                "how_to_prevent": "Follow secure coding guides, perform code reviews, and use tools like linters and static analysis.",
+                "quiz_mcqs": [
+                    {"q": "What is a secure way to handle user input for database queries?", "options": ["Concatenate strings", "Use parameterized queries or prepared statements", "Ignore it", "Encrypt the input"], "correct": 1},
+                    {"q": "Why should you not hard-code passwords in source code?", "options": ["They expire", "Anyone with access to the code can see them, making it easy for attackers", "It makes the code longer", "It slows the program"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You find database credentials in a GitHub repo. What do you do?", "options": ["Leave them", "Remove them, rotate the credentials, and inform the team about not storing secrets in code", "Use them yourself", "Upload more secrets"], "correct": 1}
+            },
+            {
+                "section_title": "Digital Forensics",
+                "concept_explanation": "Forensics involves collecting and analyzing digital evidence after an incident, using tools to examine logs, files, and memory without altering them.",
+                "real_world_example": "After a breach, the team clones the affected disk and reviews it to see what malware was present and what data was accessed.",
+                "how_attack_works": "Without proper forensics, it's hard to know what happened, which slows response and may lead to wrong conclusions.",
+                "warning_signs": "Logs disappearing, timestamps changing, or evidence being overwritten during an investigation.",
+                "how_to_prevent": "Prepare by having imaging tools ready, preserve evidence quickly, and handle data in a forensically sound way.",
+                "quiz_mcqs": [
+                    {"q": "What is a forensic image?", "options": ["A picture of a crime scene", "An exact bit-for-bit copy of a storage device used for analysis", "A scanned document", "A log file"], "correct": 1},
+                    {"q": "Why is it important not to power off a compromised system before imaging?", "options": ["It wastes time", "Powering off may change or lose volatile evidence like RAM contents", "It fixes the problem", "It stops attackers"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You suspect a server has been compromised but need to investigate. What should you do first?", "options": ["Reboot it", "Isolate and image it so you can analyze without contaminating evidence", "Delete the logs", "Disconnect power completely"], "correct": 1}
+            },
+            {
+                "section_title": "Reverse Engineering",
+                "concept_explanation": "Reverse engineering means analyzing software or binaries to understand how they work, often used to study malware or recover lost code.",
+                "real_world_example": "A security analyst decompiles a suspicious executable to see what it does and finds it contacts a known command-and-control server.",
+                "how_attack_works": "Attackers reverse engineer software to find vulnerabilities or create cracks; defenders use it to study threats.",
+                "warning_signs": "Malware samples with obfuscated code or packed executables designed to thwart analysis.",
+                "how_to_prevent": "Use obfuscation and anti-reverse-engineering techniques for proprietary code, and enforce tight controls on sensitive binaries.",
+                "quiz_mcqs": [
+                    {"q": "Why might you reverse engineer a piece of malware?", "options": ["To add new features", "To understand its behavior and create defenses or signatures", "To make it run faster", "To translate it to another language"], "correct": 1},
+                    {"q": "What tool is commonly used for reverse engineering binaries?", "options": ["Excel", "IDA Pro or Ghidra", "Photoshop", "Notepad"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You receive a suspicious executable email attachment. How do you safely analyze it?", "options": ["Run it on your main workstation", "Use a sandbox or isolated VM to reverse engineer without risking production systems", "Email it to a friend", "Ignore it"], "correct": 1}
+            },
+            {
+                "section_title": "SIEM & Log Analysis",
+                "concept_explanation": "Security Information and Event Management (SIEM) systems collect logs from across the network and help analysts spot anomalies and potential threats.",
+                "real_world_example": "A SIEM alert highlights repeated failed login attempts from an unusual country; the analyst investigates and blocks the IP.",
+                "how_attack_works": "Attackers try to hide their tracks by deleting or altering logs; without logs, detection is much harder.",
+                "warning_signs": "Missing logs, unexpected log sources, or spikes in certain events like login failures.",
+                "how_to_prevent": "Ensure logs are collected centrally, retained securely, and reviewed regularly; use alerting rules for suspicious activity.",
+                "quiz_mcqs": [
+                    {"q": "What does SIEM stand for?", "options": ["Security, Internet, Email, Management", "Security Information and Event Management", "System Integration and Event Monitoring", "Simple Internal Email Manager"], "correct": 1},
+                    {"q": "Why analyze logs regularly?", "options": ["For fun", "To detect anomalies and signs of compromise early", "To fill disk space", "To confuse users"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "Your SIEM shows dozens of failed SSH logins from the same IP over 10 minutes. What should you do?", "options": ["Ignore it", "Investigate the source, block it if malicious, and ensure affected accounts rotate passwords", "Reboot the SSH server", "Disable logging"], "correct": 1}
+            },
+            {
+                "section_title": "Cloud Security Basics",
+                "concept_explanation": "Cloud providers (AWS, Azure) have shared responsibility models; you secure your data and configuration while they secure the infrastructure.",
+                "real_world_example": "An S3 bucket set to public by mistake exposes customer data; the team corrects the permissions and reviews policies.",
+                "how_attack_works": "Misconfigurations, stolen credentials, or insecure APIs allow attackers to access cloud resources.",
+                "warning_signs": "Public storage buckets, overly permissive IAM roles, or keys checked into source control.",
+                "how_to_prevent": "Follow provider best practices, use IAM least privilege, enable logging, and regularly audit cloud configurations.",
+                "quiz_mcqs": [
+                    {"q": "In the cloud shared responsibility model, who is responsible for your data?", "options": ["The cloud provider", "You (the customer)", "No one", "The government"], "correct": 1},
+                    {"q": "What is a risky IAM configuration?", "options": ["Granting Admin access to all users when they only need read access", "Granting read-only access", "Using MFA", "Rotating keys"], "correct": 0}
+                ],
+                "scenario_question": {"scenario": "You discover an S3 bucket with sensitive data set to 'Public'. What do you do?", "options": ["Leave it", "Change the permissions to private, investigate how it happened, and notify your security team", "Delete the bucket", "Upload more data"], "correct": 1}
+            },
+            {
+                "section_title": "Ethical Hacking & CTF Concepts",
+                "concept_explanation": "Ethical hacking means testing systems legally with permission. Capture-the-Flag (CTF) competitions teach skills like exploiting vulnerabilities and reverse engineering.",
+                "real_world_example": "Your security team runs a CTF exercise to help new analysts practice finding and fixing vulnerabilities.",
+                "how_attack_works": "CTFs mimic real attacks; they help you learn how attackers think without causing harm.",
+                "warning_signs": "Using hacking skills without authorization or against systems you don't own.",
+                "how_to_prevent": "Always get permission before testing; stick to authorized CTFs and environments.",
+                "quiz_mcqs": [
+                    {"q": "What is a key rule of ethical hacking?", "options": ["Hack any system you like", "Get explicit permission before testing systems", "Forget your password", "Never ask"], "correct": 1},
+                    {"q": "What is the purpose of a CTF?", "options": ["Steal flags", "Learn security skills in a safe, competitive environment", "Crash servers", "Build websites"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You find a bug in a service you use that lets you access other people's data. What should you do?", "options": ["Exploit it for fun", "Report it through the service's bug bounty or disclosure program and do not misuse it", "Share it publicly to brag", "Ignore it"], "correct": 1}
+            },
+            {
+                "section_title": "Linux & Windows Security Hardening",
+                "concept_explanation": "Hardening means configuring systems securely: disabling unnecessary services, applying patches, and using firewalls and access controls.",
+                "real_world_example": "A server has SSH root login disabled and only allows key-based authentication; it hasn't been compromised in years.",
+                "how_attack_works": "Default configurations often have open ports, weak passwords, and services attackers exploit.",
+                "warning_signs": "Unused software installed, default passwords still active, or missing security updates.",
+                "how_to_prevent": "Follow hardening guides, remove what you don't need, keep systems patched, and audit configurations regularly.",
+                "quiz_mcqs": [
+                    {"q": "What is a simple step to harden a Linux server?", "options": ["Enable SSH root login", "Disable unused services and close unnecessary ports", "Install more software", "Change the hostname"], "correct": 1},
+                    {"q": "Why apply patches promptly?", "options": ["To get new features", "To fix security vulnerabilities before attackers can use them", "To slow down the system", "To change the logo"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "A Windows machine hasn't been rebooted in months and hasn't received updates. What risk does this pose?", "options": ["None", "It may be vulnerable to known exploits that a patch would have fixed", "It will delete your files", "It will run faster"], "correct": 1}
+            },
+            {
+                "section_title": "Exploit Development Basics",
+                "concept_explanation": "Exploit development is creating code to take advantage of a vulnerability. Understanding it helps defenders patch and mitigate exploits before attackers use them.",
+                "real_world_example": "Researchers write a proof‑of‑concept exploit for a buffer overflow to show the vendor how to fix it.",
+                "how_attack_works": "Once an attacker knows how to exploit a vulnerability, they can execute arbitrary code or gain unauthorized access.",
+                "warning_signs": "Seeing proof‑of‑concept code publicly available for a specific vulnerability.",
+                "how_to_prevent": "Patch vulnerable software quickly and apply mitigations like ASLR and DEP to make exploitation harder.",
+                "quiz_mcqs": [
+                    {"q": "Why would a defender study exploit development?", "options": ["To create malware", "To understand how vulnerabilities are used so they can better protect systems", "To break the law", "To write games"], "correct": 1},
+                    {"q": "What is a common mitigation against exploits?", "options": ["Disable the CPU", "Use address space layout randomization (ASLR) and data execution prevention (DEP)", "Share your password", "Open all ports"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "A new exploit is released for a widely used library. What should आपण do?", "options": ["Ignore it", "Update or patch the library immediately and consider applying additional mitigations", "Uninstall the library", "Delete all files"], "correct": 1}
+            },
+            {
+                "section_title": "Security Operations (SOC) Concepts",
+                "concept_explanation": "A SOC monitors, detects, and responds to security incidents using people, processes, and technology (like SIEM, EDR, and threat intel).",
+                "real_world_example": "The SOC team receives an alert about unusual network traffic and escalates it to incident response.",
+                "how_attack_works": "Without a SOC, attacks may go unnoticed for long periods, allowing greater damage.",
+                "warning_signs": "Lack of monitoring, alert fatigue, or unclear escalation paths.",
+                "how_to_prevent": "Support SOC efforts by reporting issues, providing relevant logs, and following incident response procedures.",
+                "quiz_mcqs": [
+                    {"q": "What is one role of a SOC?", "options": ["Designing hardware", "Monitoring for and responding to security incidents", "Marketing products", "Writing novels"], "correct": 1},
+                    {"q": "Why is timely escalation important in a SOC?", "options": ["To keep analysts busy", "So incidents can be contained quickly before they spread", "To generate reports", "To slow down the network"], "correct": 1}
+                ],
+                "scenario_question": {"scenario": "You notice an alert from the network IDS about a possible port scan. What should you do?", "options": ["Ignore it", "Notify the SOC or follow the incident reporting process so analysts can investigate", "Block your own IP", "Restart the IDS"], "correct": 1}
             }
         ],
         "final_assessment": [

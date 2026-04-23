@@ -58,12 +58,12 @@ def _seed_demo_if_empty(conn):
         conn.commit()
         return
     
-    # Create demo users for each type: Student, Digital Citizen, IT Pro, Parental Guide
+    # Create demo users for each type: School, College, Corporate, IT Team
     demo_users = [
-        ('student1', 'student@cyberarcade.com', 'demo_hash', 'student', 1, 0, 0, 0, 0),
-        ('citizen1', 'citizen@cyberarcade.com', 'demo_hash', 'digital_citizen', 1, 0, 0, 0, 0),
-        ('itpro1', 'itpro@cyberarcade.com', 'demo_hash', 'itpro', 1, 0, 0, 0, 0),
-        ('parent1', 'parent@cyberarcade.com', 'demo_hash', 'parent', 1, 0, 0, 0, 0),
+        ('school1', 'school@cyberarcade.com', 'demo_hash', 'school', 1, 0, 0, 0, 0),
+        ('college1', 'college@cyberarcade.com', 'demo_hash', 'college', 1, 0, 0, 0, 0),
+        ('corporate1', 'corporate@cyberarcade.com', 'demo_hash', 'corporate', 1, 0, 0, 0, 0),
+        ('itteam1', 'itteam@cyberarcade.com', 'demo_hash', 'it_team', 1, 0, 0, 0, 0),
     ]
     
     p = placeholder()

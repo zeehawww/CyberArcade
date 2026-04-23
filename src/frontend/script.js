@@ -12,7 +12,7 @@ const appState = {
         achievements: []
     },
     currentSection: 'home',
-    currentAudience: 'student', // student | enterprise | itpro | parent
+    currentAudience: 'school', // school | college | corporate | it_team
     gameInstances: {},
     moduleInstances: {},
     isAuthenticated: false
@@ -20,40 +20,33 @@ const appState = {
 
 // User-type config: Student, Digital Citizen, IT Pro, Parental Guide (games mapping; modules are from API)
 const AUDIENCE_CONFIG = {
-    student: {
-        name: 'Student',
-        gamesSectionTitle: 'Games for Learners',
-        gamesSectionSubtitle: 'Fun ways to learn online safety and spot scams.',
+    school: {
+        name: 'School',
+        gamesSectionTitle: 'Games for School Learners',
+        gamesSectionSubtitle: 'Learn online safety and spot scams with Cyber Snake & Ladder.',
         heroSubtitle: 'Learn to stay safe online with content made for students. Spot fake messages, keep your accounts safe, and browse the web without getting tricked.',
-        gameIds: ['snake-ladder', 'phishing-detective', 'caesar-cipher', 'security-quiz', 'spot-the-threat']
+        gameIds: ['snake-ladder']
     },
-    digital_citizen: {
-        name: 'Digital Citizen',
-        gamesSectionTitle: 'Games for Digital Citizens',
-        gamesSectionSubtitle: 'Practice spotting scams and protecting your identity in everyday life.',
+    college: {
+        name: 'College',
+        gamesSectionTitle: 'Games for College Students',
+        gamesSectionSubtitle: 'Test your security knowledge with Cyber Snake & Ladder.',
+        heroSubtitle: 'Stay secure throughout your academic journey. Master password safety, recognize advanced phishing, and protect your digital identity.',
+        gameIds: ['snake-ladder']
+    },
+    corporate: {
+        name: 'Corporate',
+        gamesSectionTitle: 'Corporate Security Training',
+        gamesSectionSubtitle: 'Protect company data while playing Cyber Snake & Ladder.',
         heroSubtitle: 'Stay safe as you work, shop, and browse. Learn to recognize scams, protect your logins, and keep your privacy in check.',
-        gameIds: ['phishing-detective', 'social-engineering', 'spot-the-threat', 'incident-response', 'password-cracker']
+        gameIds: ['snake-ladder']
     },
-    enterprise: {
-        name: 'Digital Citizen',
-        gamesSectionTitle: 'Games for Digital Citizens',
-        gamesSectionSubtitle: 'Practice spotting scams and protecting your identity in everyday life.',
-        heroSubtitle: 'Stay safe as you work, shop, and browse. Learn to recognize scams, protect your logins, and keep your privacy in check.',
-        gameIds: ['phishing-detective', 'social-engineering', 'spot-the-threat', 'incident-response', 'password-cracker']
-    },
-    itpro: {
-        name: 'IT Professional',
-        gamesSectionTitle: 'Security Lab',
-        gamesSectionSubtitle: 'CTF, network scanning, and incident response for practitioners.',
-        heroSubtitle: 'Hands-on challenges for IT and security professionals. Sharpen skills with CTF, network assessment, and incident response.',
-        gameIds: ['capture-the-flag', 'network-scanner', 'malware-analysis', 'incident-response', 'password-cracker', 'caesar-cipher']
-    },
-    parent: {
-        name: 'Parental Guide',
-        gamesSectionTitle: 'Games Your Child Can Play',
-        gamesSectionSubtitle: 'Same learner-friendly games, so you can play along and guide them.',
-        heroSubtitle: 'See what your child is learning and how you can support them. Same modules and games, with a parent’s perspective.',
-        gameIds: ['snake-ladder', 'phishing-detective', 'security-quiz', 'spot-the-threat']
+    it_team: {
+        name: 'IT Team',
+        gamesSectionTitle: 'Security Ops Training',
+        gamesSectionSubtitle: 'Professional security concepts simplified in Cyber Snake & Ladder.',
+        heroSubtitle: 'Hands-on challenges for IT and security professionals. Sharpen skills with specialized cyber defense concepts.',
+        gameIds: ['snake-ladder']
     }
 };
 
@@ -91,7 +84,7 @@ function checkAuth() {
             if (data.success && data.user) {
                 appState.isAuthenticated = true;
                 appState.currentUser = { ...appState.currentUser, ...data.user };
-                appState.currentAudience = data.user.user_type || 'student';
+                appState.currentAudience = data.user.user_type || 'school';
                 initializeApp();
             } else {
                 showLogin();
@@ -148,7 +141,7 @@ function handleLogin() {
         if (data.success) {
             appState.isAuthenticated = true;
             appState.currentUser = { ...appState.currentUser, ...data.user };
-            appState.currentAudience = data.user.user_type || 'student';
+            appState.currentAudience = data.user.user_type || 'school';
             initializeApp();
             showSection('home');
         } else {
@@ -210,17 +203,20 @@ function showRegisterForm() {
 }
 
 function updateNavForUserType() {
-    if (appState.currentUser.user_type === 'parent') {
-        document.getElementById('parentalLink').style.display = 'block';
-    }
     document.getElementById('navAuth').style.display = 'none';
     document.getElementById('navMenu').style.display = 'flex';
     document.getElementById('navUser').style.display = 'flex';
     document.getElementById('userName').textContent = appState.currentUser.username || 'User';
     const typeBadge = document.getElementById('userType');
-    var ut = appState.currentUser.user_type || 'student';
-    typeBadge.textContent = ut === 'digital_citizen' ? 'Digital Citizen' : ut === 'itpro' ? 'IT Pro' : ut === 'parent' ? 'Parental Guide' : 'Student';
-    typeBadge.className = 'user-type-badge ' + (ut === 'enterprise' ? 'digital_citizen' : ut);
+    var ut = appState.currentUser.user_type || 'school';
+    
+    let displayType = 'School';
+    if (ut === 'college') displayType = 'College';
+    else if (ut === 'corporate' || ut === 'digital_citizen') displayType = 'Corporate';
+    else if (ut === 'it_team' || ut === 'itpro') displayType = 'IT Team';
+
+    typeBadge.textContent = displayType;
+    typeBadge.className = 'user-type-badge ' + (ut === 'digital_citizen' ? 'corporate' : ut === 'itpro' ? 'it_team' : ut);
 }
 
 function setAudience(audienceId) {
@@ -241,8 +237,10 @@ function renderGamesGrid() {
     if (!grid) return;
     // Use user_type from logged-in user; map enterprise -> digital_citizen
     var audience = appState.currentUser.user_type || appState.currentAudience;
-    if (audience === 'enterprise') audience = 'digital_citizen';
-    var gameIds = (AUDIENCE_CONFIG[audience] && AUDIENCE_CONFIG[audience].gameIds) ? AUDIENCE_CONFIG[audience].gameIds : AUDIENCE_CONFIG.student.gameIds;
+    if (audience === 'digital_citizen' || audience === 'enterprise') audience = 'corporate';
+    if (audience === 'itpro') audience = 'it_team';
+    if (audience === 'student') audience = 'school';
+    var gameIds = (AUDIENCE_CONFIG[audience] && AUDIENCE_CONFIG[audience].gameIds) ? AUDIENCE_CONFIG[audience].gameIds : AUDIENCE_CONFIG.school.gameIds;
     grid.innerHTML = gameIds.map(function (gameId) {
         var meta = GAME_META[gameId];
         if (!meta) return '';
@@ -262,7 +260,9 @@ function renderGamesGrid() {
 
 function updateHeroForAudience() {
     var audience = appState.currentUser.user_type || appState.currentAudience;
-    if (audience === 'enterprise') audience = 'digital_citizen';
+    if (audience === 'digital_citizen' || audience === 'enterprise') audience = 'corporate';
+    if (audience === 'itpro') audience = 'it_team';
+    if (audience === 'student') audience = 'school';
     var config = AUDIENCE_CONFIG[audience];
     var sub = document.querySelector('.hero-subtitle');
     if (sub && config) sub.textContent = config.heroSubtitle;
@@ -276,12 +276,8 @@ function loadLearningModules() {
     fetch('/api/learning/modules', { credentials: 'include' })
         .then(response => response.json())
         .then(data => {
-            if (data.modules) {
-                renderModulesGrid(data.modules);
-                if (appState.currentUser.user_type === 'parent') {
-                    renderParentalModules(data.modules);
-                }
-            }
+            if (!data.modules) return;
+            renderModulesGrid(data.modules);
         })
         .catch(error => console.error('Error loading modules:', error));
 }
@@ -299,18 +295,6 @@ function renderModulesGrid(modules) {
     `).join('');
 }
 
-function renderParentalModules(modules) {
-    const grid = document.getElementById('parentalModulesGrid');
-    if (!grid) return;
-    grid.innerHTML = modules.map(module => `
-        <div class="module-card">
-            <div class="module-icon"><i class="fas ${module.icon}"></i></div>
-            <h3>${module.title}</h3>
-            <p>${module.description}</p>
-            <p style="color: #00ffff; font-size: 0.9rem;">Your child can access this module</p>
-        </div>
-    `).join('');
-}
 
 // Load and display career roadmap
 function loadCareerRoadmap() {
@@ -926,8 +910,18 @@ function showAchievementNotification(title, description) {
     }, 3000);
 }
 
-// Awareness module IDs (content loaded from API)
-const AWARENESS_MODULE_IDS = ['student_awareness', 'digital_citizen_awareness', 'itpro_awareness'];
+// Awareness / topic module IDs (content loaded from API)
+const AWARENESS_MODULE_IDS = [
+    // Specialized Awareness Modules (Categorized by Track)
+    'school_phishing', 'school_ransomware', 'school_social_engineering', 'school_passwords', 'school_privacy', 'school_zero_day',
+    'college_phishing', 'college_ransomware', 'college_social_engineering', 'college_passwords', 'college_privacy', 'college_zero_day',
+    'corporate_phishing', 'corporate_ransomware', 'corporate_social_engineering', 'corporate_passwords', 'corporate_privacy', 'corporate_zero_day',
+    'it_team_phishing', 'it_team_ransomware', 'it_team_social_engineering', 'it_team_passwords', 'it_team_privacy', 'it_team_zero_day',
+    
+    // Legacy mapping support
+    'school_awareness', 'college_awareness', 'digital_citizen_awareness', 'itpro_awareness',
+    'student_awareness',
+];
 
 // Open learning module
 function openModule(moduleName) {
@@ -1010,6 +1004,133 @@ function closeModule() {
 // Get module data
 function getModuleData(moduleName) {
     const modules = {
+        parent_guide: {
+            title: 'Parental Guide: Helping Your Child Stay Safe Online',
+            content: `
+                <div class="module-content">
+                    <div class="lesson-section">
+                        <h3>👨‍👩‍👧 What Your Child Sees in CyberArcade</h3>
+                        <p style="font-size: 1rem; line-height: 1.8; color: #ffffff;">
+                            CyberArcade teaches kids and teens about <strong>passwords</strong>, <strong>fake messages (phishing)</strong>,
+                            <strong>safe browsing</strong>, <strong>social media safety</strong>, and <strong>privacy</strong> using simple language,
+                            stories, and games. They practice spotting red flags instead of just memorizing rules.
+                        </p>
+                    </div>
+
+                    <div class="lesson-section">
+                        <h3>✅ What You <span style="color:#00ff00;">Can Do</span> With Your Child</h3>
+                        <ul style="line-height: 2; color: #ffffff; padding-left: 1.2rem;">
+                            <li><strong>Sit with them for the first modules or games.</strong> Ask: “What did you learn from this level?”</li>
+                            <li><strong>Use the same words they see here.</strong> Talk about “strong passwords”, “phishing”, and “scams” so it feels normal, not scary.</li>
+                            <li><strong>Make simple family rules together.</strong> For example:
+                                <ul style="margin-top: 0.5rem; margin-left: 1.2rem; font-size: 0.9rem;">
+                                    <li>“We never share passwords with friends, only with parents if needed.”</li>
+                                    <li>“We don’t click links from strangers or weird messages.”</li>
+                                    <li>“If something online feels wrong or confusing, we pause and tell an adult.”</li>
+                                </ul>
+                            </li>
+                            <li><strong>Practice scenarios.</strong> Ask questions like:
+                                <em>“If someone DMs you saying you won a free gift, what would you do?”</em></li>
+                            <li><strong>Check devices together.</strong> Review app permissions, privacy settings, and who can contact them on social media.</li>
+                            <li><strong>Model good behavior.</strong> Let them see you use strong passwords, ignore suspicious links, and talk calmly about mistakes.</li>
+                        </ul>
+                    </div>
+
+                    <div class="lesson-section">
+                        <h3>🚫 What You <span style="color:#ff5555;">Should Avoid</span></h3>
+                        <ul style="line-height: 2; color: #ffffff; padding-left: 1.2rem;">
+                            <li><strong>Don’t scare them with horror stories only.</strong> Fear can stop them from telling you when something is wrong.</li>
+                            <li><strong>Don’t punish honesty.</strong> If they clicked a bad link or talked to someone strange, thank them for telling you first.</li>
+                            <li><strong>Don’t post their personal details publicly.</strong> Avoid sharing school name, routine, or location in your own social media posts.</li>
+                            <li><strong>Don’t assume “they already know”.</strong> Children often recognize terms (“hacking”, “scam”) but not the subtle red flags.</li>
+                            <li><strong>Don’t ignore small warning signs.</strong> Sudden fear of checking messages, secretive behavior, or new “online friends” may need a gentle chat.</li>
+                        </ul>
+                    </div>
+
+                    <div class="lesson-section">
+                        <h3>🛡️ Simple House Rules for Cyber Safety</h3>
+                        <ul style="line-height: 2; color: #ffffff; padding-left: 1.2rem;">
+                            <li><strong>Device in shared spaces</strong> for younger kids (living room, kitchen), not behind closed doors for long periods.</li>
+                            <li><strong>“Ask before you install.”</strong> Children check with you before installing new apps or games.</li>
+                            <li><strong>“No secrets with strangers.”</strong> Anyone asking them to keep chats, photos, or calls secret from parents is a red flag.</li>
+                            <li><strong>“Pause and show an adult.”</strong> For pop‑ups, prize messages, or anything asking for codes, passwords, or photos.</li>
+                            <li><strong>Regular check‑ins.</strong> Once a week, ask: “Did you see anything online this week that made you confused, upset, or curious?”</li>
+                        </ul>
+                    </div>
+
+                    <div class="lesson-section">
+                        <h3>💬 How to Talk When Something Goes Wrong</h3>
+                        <p style="font-size: 1rem; line-height: 1.8; color: #ffffff;">
+                            Sooner or later, every child will click on the wrong thing, see something scary, or get a strange message.
+                            What matters most is that they <strong>feel safe telling you</strong>. You can say things like:
+                        </p>
+                        <ul style="line-height: 2; color: #ffffff; padding-left: 1.2rem;">
+                            <li>“Thank you for telling me. You did the right thing.”</li>
+                            <li>“We’ll fix this together. You’re not in trouble for asking for help.”</li>
+                            <li>“Let’s block/report this account and talk about how to spot it next time.”</li>
+                        </ul>
+                    </div>
+
+                    <div class="next-steps" style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(0,255,255,0.1), rgba(0,128,255,0.1)); border-radius: 10px; border: 2px solid rgba(0,255,255,0.3); text-align: center;">
+                        <h4 style="color: #00ffff; margin-bottom: 1rem; font-size: 1.3rem;">🌱 Next Step as a Parent</h4>
+                        <p style="color: #cccccc; margin-bottom: 1.5rem;">
+                            Pick <strong>one rule</strong> and <strong>one conversation</strong> from this guide to try with your child this week.
+                            Small, calm talks over time work better than one big lecture.
+                        </p>
+                        <button onclick="closeModule();" style="padding: 0.9rem 1.8rem; background: linear-gradient(45deg, #00ffff, #0080ff); border: none; border-radius: 50px; color: #000; font-weight: bold; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,255,255,0.3);">
+                            Close Guide
+                        </button>
+                    </div>
+                </div>
+            `,
+            init: null
+        },
+        parental_guidelines: {
+            title: 'Parental Cyber Safety Guidelines',
+            content: `
+                <div class="module-content">
+                    <div class="lesson-section">
+                        <h3>📋 15 Practical Rules to Protect Your Child Online</h3>
+                        <p style="font-size: 0.95rem; line-height: 1.8; color: #ffffff;">
+                            Use this checklist as a starting point. You don’t have to apply every rule at once—pick the
+                            ones that fit your child’s age and your family values, then adjust over time.
+                        </p>
+                    </div>
+
+                    <div class="lesson-section">
+                        <ol style="line-height: 2; color: #ffffff; padding-left: 1.2rem;">
+                            <li><strong>Use child / restricted mode on devices.</strong> Turn on child profiles, parental controls, or “Kids Mode” before handing the phone or tablet to your child.</li>
+                            <li><strong>Keep devices in shared spaces.</strong> For younger kids, use devices in the living room or kitchen, not alone behind closed doors for long periods.</li>
+                            <li><strong>Set “ask before install” as a family rule.</strong> Children must ask you before downloading new apps, games, or browser extensions.</li>
+                            <li><strong>Limit apps with chat or DMs.</strong> Prefer apps that don’t allow strangers to contact your child, or lock down those features in settings.</li>
+                            <li><strong>Turn on safe search and content filters.</strong> Enable filters on Google, YouTube, and app stores to reduce exposure to adult or violent content.</li>
+                            <li><strong>Disable in‑app purchases or protect them with a PIN.</strong> Avoid surprise bills and scammy “buy more coins” pop‑ups.</li>
+                            <li><strong>No sharing of personal details with strangers.</strong> Teach your child never to share real name, school, address, routine, or photos with people they only know online.</li>
+                            <li><strong>Make “no secrets with online friends” non‑negotiable.</strong> Anyone asking your child to keep chats, photos, or calls secret from parents is a red flag.</li>
+                            <li><strong>Set clear time limits and screen‑free zones.</strong> For example: no phones at the dinner table, and devices stay outside the bedroom at night.</li>
+                            <li><strong>Review friends / followers together regularly.</strong> Go through their friend list and remove accounts they don’t actually know in real life.</li>
+                            <li><strong>Teach “pause and show an adult”.</strong> If a message asks for a code, password, or photo—or feels weird—they should stop and show you before tapping anything.</li>
+                            <li><strong>Keep apps and systems updated.</strong> Turn on automatic updates on phones, tablets, browsers, and security software.</li>
+                            <li><strong>Use strong passwords and turn on 2FA for family accounts.</strong> Protect shared email, app store, and gaming accounts with strong passwords and two‑factor authentication.</li>
+                            <li><strong>Check in emotionally, not just technically.</strong> Ask regularly: “Have you seen anything online that upset, scared, or confused you this week?”</li>
+                            <li><strong>Reward honesty, not perfection.</strong> Make it clear they won’t be punished for telling you about mistakes (like clicking a bad link) so they come to you early.</strong></li>
+                        </ol>
+                    </div>
+
+                    <div class="next-steps" style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(0,255,255,0.1), rgba(0,128,255,0.1)); border-radius: 10px; border: 2px solid rgba(0,255,255,0.3); text-align: center;">
+                        <h4 style="color: #00ffff; margin-bottom: 1rem; font-size: 1.2rem;">🧩 How to Use These Rules</h4>
+                        <p style="color: #cccccc; margin-bottom: 1.5rem;">
+                            Choose <strong>3–5 rules</strong> to start with and explain them calmly to your child. As they grow and
+                            learn, you can relax or adjust the rules together.
+                        </p>
+                        <button onclick="closeModule();" style="padding: 0.9rem 1.8rem; background: linear-gradient(45deg, #00ffff, #0080ff); border: none; border-radius: 50px; color: #000; font-weight: bold; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,255,255,0.3);">
+                            Close Guidelines
+                        </button>
+                    </div>
+                </div>
+            `,
+            init: null
+        },
         passwords: {
             title: 'Password Security',
             content: `

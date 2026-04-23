@@ -21,9 +21,7 @@
                 <a href="#learn" class="nav-link">Learn</a>
                 <a href="#games" class="nav-link">Games</a>
                 <a href="#progress" class="nav-link">Progress</a>
-                <a href="#parental" class="nav-link" id="parentalLink" style="display: none;">
-                    <i class="fas fa-users"></i> Parental Guide
-                </a>
+
             </div>
             <div class="nav-auth" id="navAuth">
                 <button class="btn-auth" onclick="showLogin()">
@@ -78,7 +76,7 @@
                     <div class="hero-value-prop">
                         <div class="value-item"><i class="fas fa-check-circle"></i><span>Tailored to you</span></div>
                         <div class="value-item"><i class="fas fa-check-circle"></i><span>Real-world safety</span></div>
-                        <div class="value-item"><i class="fas fa-check-circle"></i><span>Students · Citizens · Pros · Parents</span></div>
+                        <div class="value-item"><i class="fas fa-check-circle"></i><span>School · College · Corporate · IT Team</span></div>
                     </div>
                 </div>
                 <div class="hero-visual">
@@ -169,10 +167,10 @@
                         <input type="password" id="regPassword" placeholder="Choose a strong password" required autocomplete="new-password">
                         <label class="auth-label" for="regUserType">I am a</label>
                         <select id="regUserType" required aria-label="Account type">
-                            <option value="student">Student</option>
-                            <option value="digital_citizen">Digital Citizen</option>
-                            <option value="itpro">IT Professional</option>
-                            <option value="parent">Parental Guide</option>
+                            <option value="school">School</option>
+                            <option value="college">College</option>
+                            <option value="corporate">Corporate</option>
+                            <option value="it_team">IT Team</option>
                         </select>
                         <button type="button" class="btn btn-primary btn-auth-submit" onclick="handleRegister()">Create account</button>
                         <div id="registerError" class="auth-error"></div>
@@ -225,22 +223,7 @@
             </div>
         </section>
 
-        <!-- Parental Guide Section -->
-        <section id="parental" class="section section-learn">
-            <div class="section-header">
-                <h2>Parental Guide</h2>
-                <p class="section-subtitle">See what your child is learning and how you can support them.</p>
-            </div>
-            <div class="parental-dashboard" id="parentalDashboard">
-                <div class="parental-info">
-                    <p>These are the same modules your child can access. Use them to talk about online safety together.</p>
-                </div>
-                <div class="parental-modules">
-                    <h3 class="parental-modules-title">Modules in this guide</h3>
-                    <div class="modules-grid" id="parentalModulesGrid"></div>
-                </div>
-            </div>
-        </section>
+
 
         <!-- Games Section -->
         <section id="games" class="section">

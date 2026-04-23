@@ -1,6 +1,6 @@
 """
 Authentication and user management.
-Supports login, registration, and user type-based access (student, enterprise, itpro, parent).
+Supports login, registration, and user type-based access (school, college, corporate, it_team).
 """
 
 from flask import request, jsonify, session
@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 import os
 
-def register_user(username, email, password, user_type='student'):
+def register_user(username, email, password, user_type='school'):
     """Register a new user. Returns (success, user_id or error_message)."""
     conn = db.get_conn()
     try:
@@ -59,7 +59,7 @@ def login_user(username_or_email, password):
             'id': user[0],
             'username': user[1],
             'email': user[2],
-            'user_type': user[4] if len(user) > 4 else 'student',
+            'user_type': user[4] if len(user) > 4 else 'school',
             'level': user[5] if len(user) > 5 else 1,
             'points': user[6] if len(user) > 6 else 0,
             'badges': user[7] if len(user) > 7 else 0,

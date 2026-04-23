@@ -15,7 +15,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .integrations import integrations_bp
 from . import db
 from . import auth
-from .awareness_modules import STUDENT_AWARENESS, DIGITAL_CITIZEN_AWARENESS, ITPRO_AWARENESS
+from .awareness_modules import SCHOOL_AWARENESS, COLLEGE_AWARENESS, DIGITAL_CITIZEN_AWARENESS, ITPRO_AWARENESS
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -38,7 +38,7 @@ def register():
     if not username or not email or not password:
         return jsonify({"success": False, "error": "Username, email, and password required"}), 400
     
-    if user_type not in ['student', 'digital_citizen', 'itpro', 'parent']:
+    if user_type not in ['school', 'college', 'corporate', 'it_team']:
         return jsonify({"success": False, "error": "Invalid user type"}), 400
     
     success, result = auth.register_user(username, email, password, user_type)
@@ -368,366 +368,221 @@ def get_user_progress():
 @app.route('/api/learning/modules', methods=['GET'])
 def get_learning_modules():
     """Get learning modules filtered by user type. Content tailored to each persona."""
-    user_type = session.get('user_type', 'student')
-    # Map legacy 'enterprise' to 'digital_citizen'
-    if user_type == 'enterprise':
-        user_type = 'digital_citizen'
+    user_type = session.get('user_type', 'school')
+    # Map legacy types to new types
+    if user_type == 'student':
+        user_type = 'school'
+    elif user_type in ['digital_citizen', 'enterprise', 'corporate']:
+        user_type = 'corporate'
+    elif user_type in ['itpro', 'it_team']:
+        user_type = 'it_team'
+    elif user_type in ['school', 'college']:
+        pass # Already handled by keys
+    else:
+        user_type = 'school'
     
     # Module IDs per user type — one topic = one learning module
     modules_by_type = {
-        'student': [
-            'student_intro_cybersecurity',
-            'student_cyber_threats',
-            'student_strong_passwords',
-            'student_phishing_social_engineering',
-            'student_safe_browsing',
-            'student_social_media_safety',
-            'student_email_security',
-            'student_malware_awareness',
-            'student_mobile_security',
-            'student_online_privacy',
-            'student_2fa',
-            'student_cyberbullying',
-            'student_basic_data_protection',
+        'school': [
+            'phishing',
+            'ransomware',
+            'social_engineering',
+            'password_security',
+            'data_privacy',
+            'zero_day_threats',
         ],
-        'digital_citizen': [
-            'enterprise_info_security_fundamentals',
-            'enterprise_security_policies',
-            'enterprise_phishing_spear',
-            'enterprise_bec',
-            'enterprise_ransomware_awareness',
-            'enterprise_secure_remote_work',
-            'enterprise_endpoint_security',
-            'enterprise_data_classification',
-            'enterprise_insider_threats',
-            'enterprise_social_engineering_defense',
-            'enterprise_incident_reporting',
-            'enterprise_password_mfa',
-            'enterprise_secure_cloud',
-            'enterprise_compliance_basics',
-            'enterprise_physical_security',
+        'college': [
+            'phishing',
+            'ransomware',
+            'social_engineering',
+            'password_security',
+            'data_privacy',
+            'zero_day_threats',
         ],
-        'itpro': [
-            'itpro_networking_fundamentals',
-            'itpro_cryptography',
-            'itpro_web_app_security',
-            'itpro_network_security',
-            'itpro_vuln_pt',
-            'itpro_secure_coding',
-            'itpro_malware_analysis',
-            'itpro_digital_forensics',
-            'itpro_reverse_engineering',
-            'itpro_incident_response_threat_hunting',
-            'itpro_siem_logs',
-            'itpro_cloud_security',
-            'itpro_ethical_hacking_ctf',
-            'itpro_os_hardening',
-            'itpro_exploit_dev_basics',
-            'itpro_soc_concepts',
+        'corporate': [
+            'phishing',
+            'ransomware',
+            'social_engineering',
+            'password_security',
+            'data_privacy',
+            'zero_day_threats',
         ],
-        'parent': ['passwords', 'phishing', 'browsing', 'parent_guide', 'parental_guidelines']
+        'it_team': [
+            'phishing',
+            'ransomware',
+            'social_engineering',
+            'password_security',
+            'data_privacy',
+            'zero_day_threats',
+        ]
     }
     
-    module_ids = modules_by_type.get(user_type, modules_by_type['student'])
+    module_ids = modules_by_type.get(user_type, modules_by_type['school'])
     
-    # Titles and descriptions per user type (age-appropriate, relatable)
+    # Titles and descriptions per user type
     MODULES_BY_USER = {
-        'student': {
-            'student_intro_cybersecurity': {
-                'id': 'student_intro_cybersecurity',
-                'title': 'Introduction to Cybersecurity',
-                'icon': 'fa-shield-alt',
-                'description': 'What cybersecurity means for your daily life as a student, with simple, real-world examples.'
+        'school': {
+            'phishing': {
+                'id': 'school_phishing',
+                'title': 'Phishing',
+                'icon': 'fa-fish',
+                'description': 'Protect yourself from online tricks and fake messages.'
             },
-            'student_cyber_threats': {
-                'id': 'student_cyber_threats',
-                'title': 'Types of Cyber Threats',
-                'icon': 'fa-exclamation-triangle',
-                'description': 'Malware, scams, and tricks you can actually run into as a student—and how they work.'
-            },
-            'student_strong_passwords': {
-                'id': 'student_strong_passwords',
-                'title': 'Strong Password Practices',
-                'icon': 'fa-key',
-                'description': 'Turn weak passwords into strong ones using simple passphrase tricks and smart habits.'
-            },
-            'student_phishing_social_engineering': {
-                'id': 'student_phishing_social_engineering',
-                'title': 'Phishing & Social Engineering',
-                'icon': 'fa-envelope-open-text',
-                'description': 'Spot fake messages and people who try to manipulate you into giving away info.'
-            },
-            'student_safe_browsing': {
-                'id': 'student_safe_browsing',
-                'title': 'Safe Browsing Habits',
-                'icon': 'fa-globe',
-                'description': 'Recognize safe vs. sketchy websites, pop-ups, and downloads while surfing the web.'
-            },
-            'student_social_media_safety': {
-                'id': 'student_social_media_safety',
-                'title': 'Social Media Safety',
-                'icon': 'fa-share-alt',
-                'description': 'Keep your profile, posts, and DMs safe from strangers, bullies, and oversharing.'
-            },
-            'student_email_security': {
-                'id': 'student_email_security',
-                'title': 'Email Security Basics',
-                'icon': 'fa-envelope',
-                'description': 'Understand which emails to trust, which attachments to avoid, and when to ask for help.'
-            },
-            'student_malware_awareness': {
-                'id': 'student_malware_awareness',
-                'title': 'Malware Awareness',
-                'icon': 'fa-bug',
-                'description': 'How bad software sneaks onto your devices through “free” downloads and fake tools.'
-            },
-            'student_mobile_security': {
-                'id': 'student_mobile_security',
-                'title': 'Mobile Security Basics',
-                'icon': 'fa-mobile-alt',
-                'description': 'Locking your phone, safe apps, and staying secure on public Wi‑Fi as a student.'
-            },
-            'student_online_privacy': {
-                'id': 'student_online_privacy',
-                'title': 'Online Privacy & Digital Footprint',
-                'icon': 'fa-user-shield',
-                'description': 'What your posts, likes, and searches reveal about you—and how to control that trail.'
-            },
-            'student_2fa': {
-                'id': 'student_2fa',
-                'title': 'Two-Factor Authentication (2FA)',
+            'ransomware': {
+                'id': 'school_ransomware',
+                'title': 'Ransomware',
                 'icon': 'fa-lock',
-                'description': 'Add a second lock to your important accounts so stolen passwords aren’t enough.'
+                'description': 'Learn about mean software that locks your files.'
             },
-            'student_cyberbullying': {
-                'id': 'student_cyberbullying',
-                'title': 'Cyberbullying & Online Etiquette',
-                'icon': 'fa-comments',
-                'description': 'Recognize, respond to, and report bullying online—while keeping your own behavior kind.'
-            },
-            'student_basic_data_protection': {
-                'id': 'student_basic_data_protection',
-                'title': 'Basic Data Protection',
-                'icon': 'fa-database',
-                'description': 'Protect school work and personal files with simple backup and sharing rules.'
-            },
-        },
-        'digital_citizen': {
-            'enterprise_info_security_fundamentals': {
-                'id': 'enterprise_info_security_fundamentals',
-                'title': 'Information Security Fundamentals',
-                'icon': 'fa-info-circle',
-                'description': 'Core concepts of protecting company information—digital and physical.'
-            },
-            'enterprise_security_policies': {
-                'id': 'enterprise_security_policies',
-                'title': 'Organizational Security Policies',
-                'icon': 'fa-file-alt',
-                'description': 'Why company rules exist and how following them reduces risk for everyone.'
-            },
-            'enterprise_phishing_spear': {
-                'id': 'enterprise_phishing_spear',
-                'title': 'Phishing & Spear Phishing',
-                'icon': 'fa-envelope-open-text',
-                'description': 'Spot broad spam, targeted employee scams, and fake login pages in your inbox.'
-            },
-            'enterprise_bec': {
-                'id': 'enterprise_bec',
-                'title': 'Business Email Compromise (BEC)',
-                'icon': 'fa-briefcase',
-                'description': 'How attackers impersonate executives or vendors to change payments—and how to stop them.'
-            },
-            'enterprise_ransomware_awareness': {
-                'id': 'enterprise_ransomware_awareness',
-                'title': 'Ransomware Awareness',
-                'icon': 'fa-skull-crossbones',
-                'description': 'What ransomware looks like at work and the everyday habits that help prevent it.'
-            },
-            'enterprise_secure_remote_work': {
-                'id': 'enterprise_secure_remote_work',
-                'title': 'Secure Remote Work Practices',
-                'icon': 'fa-laptop-house',
-                'description': 'VPNs, home Wi‑Fi, and safe behavior when you’re working away from the office.'
-            },
-            'enterprise_endpoint_security': {
-                'id': 'enterprise_endpoint_security',
-                'title': 'Endpoint Security',
-                'icon': 'fa-desktop',
-                'description': 'Keeping laptops and mobiles hardened, updated, and monitored as the first line of defense.'
-            },
-            'enterprise_data_classification': {
-                'id': 'enterprise_data_classification',
-                'title': 'Data Classification & Handling',
-                'icon': 'fa-tags',
-                'description': 'Understand labels like Public, Internal, Confidential—and how each must be handled.'
-            },
-            'enterprise_insider_threats': {
-                'id': 'enterprise_insider_threats',
-                'title': 'Insider Threat Awareness',
+            'social_engineering': {
+                'id': 'school_social_engineering',
+                'title': 'Social Engineering',
                 'icon': 'fa-user-secret',
-                'description': 'How accidental and malicious insiders create risk, and behaviors worth reporting.'
+                'description': 'Don\'t let strangers trick you into giving away secrets.'
             },
-            'enterprise_social_engineering_defense': {
-                'id': 'enterprise_social_engineering_defense',
-                'title': 'Social Engineering Defense',
-                'icon': 'fa-user-shield',
-                'description': 'Defend against phone, email, and in-person manipulation that targets employees.'
-            },
-            'enterprise_incident_reporting': {
-                'id': 'enterprise_incident_reporting',
-                'title': 'Incident Reporting Procedures',
-                'icon': 'fa-bullhorn',
-                'description': 'When and how to raise a flag quickly so the security team can contain issues.'
-            },
-            'enterprise_password_mfa': {
-                'id': 'enterprise_password_mfa',
-                'title': 'Password Management & MFA',
+            'password_security': {
+                'id': 'school_passwords',
+                'title': 'Password Security',
                 'icon': 'fa-key',
-                'description': 'Company expectations for passwords, managers, and multi-factor authentication.'
+                'description': 'Make your secret keys super strong and unguessable.'
             },
-            'enterprise_secure_cloud': {
-                'id': 'enterprise_secure_cloud',
-                'title': 'Secure Cloud Usage',
-                'icon': 'fa-cloud',
-                'description': 'Safe use of cloud storage and SaaS tools without over-sharing company data.'
+            'data_privacy': {
+                'id': 'school_privacy',
+                'title': 'Data Privacy',
+                'icon': 'fa-user-shield',
+                'description': 'Keep your private life private on the internet.'
             },
-            'enterprise_compliance_basics': {
-                'id': 'enterprise_compliance_basics',
-                'title': 'Compliance & Regulatory Basics',
-                'icon': 'fa-balance-scale',
-                'description': 'Your role in helping the organization meet GDPR/ISO-style data protection duties.'
-            },
-            'enterprise_physical_security': {
-                'id': 'enterprise_physical_security',
-                'title': 'Physical Security Awareness',
-                'icon': 'fa-door-closed',
-                'description': 'Badges, doors, visitors, and device safety as part of cybersecurity at work.'
-            },
-        },
-        'itpro': {
-            'itpro_networking_fundamentals': {
-                'id': 'itpro_networking_fundamentals',
-                'title': 'Networking Fundamentals (TCP/IP, OSI)',
-                'icon': 'fa-network-wired',
-                'description': 'Review the layers, ports, and flows you secure every day as an IT pro.'
-            },
-            'itpro_cryptography': {
-                'id': 'itpro_cryptography',
-                'title': 'Cryptography (Symmetric, Asymmetric, Hashing, PKI)',
-                'icon': 'fa-lock',
-                'description': 'Modern crypto building blocks and where to use which primitive safely.'
-            },
-            'itpro_web_app_security': {
-                'id': 'itpro_web_app_security',
-                'title': 'Web Application Security (OWASP Top 10)',
-                'icon': 'fa-code',
-                'description': 'Walk through common web vulns and defenses from an OWASP Top 10 perspective.'
-            },
-            'itpro_network_security': {
-                'id': 'itpro_network_security',
-                'title': 'Network Security (Firewalls, IDS/IPS)',
-                'icon': 'fa-shield-alt',
-                'description': 'Secure network exposure with filtering, detection, and sensible segmentation.'
-            },
-            'itpro_vuln_pt': {
-                'id': 'itpro_vuln_pt',
-                'title': 'Vulnerability Assessment & Penetration Testing',
-                'icon': 'fa-user-secret',
-                'description': 'From scanning to exploitation paths—how to find and prioritize weaknesses.'
-            },
-            'itpro_secure_coding': {
-                'id': 'itpro_secure_coding',
-                'title': 'Secure Coding Practices',
-                'icon': 'fa-code-branch',
-                'description': 'Defensive coding patterns that prevent injection, XSS, and access control flaws.'
-            },
-            'itpro_malware_analysis': {
-                'id': 'itpro_malware_analysis',
-                'title': 'Malware Analysis',
-                'icon': 'fa-bug',
-                'description': 'Static and dynamic analysis workflows using isolated labs and tooling.'
-            },
-            'itpro_digital_forensics': {
-                'id': 'itpro_digital_forensics',
-                'title': 'Digital Forensics',
-                'icon': 'fa-search',
-                'description': 'Evidence collection, timelines, and triage for compromised hosts and accounts.'
-            },
-            'itpro_reverse_engineering': {
-                'id': 'itpro_reverse_engineering',
-                'title': 'Reverse Engineering',
-                'icon': 'fa-microscope',
-                'description': 'Disassembly, debugging, and understanding binaries at a practical level.'
-            },
-            'itpro_incident_response_threat_hunting': {
-                'id': 'itpro_incident_response_threat_hunting',
-                'title': 'Incident Response & Threat Hunting',
+            'zero_day_threats': {
+                'id': 'school_zero_day',
+                'title': 'Zero Day Threats',
                 'icon': 'fa-exclamation-triangle',
-                'description': 'From detection to investigation and hunt loops across endpoints and logs.'
-            },
-            'itpro_siem_logs': {
-                'id': 'itpro_siem_logs',
-                'title': 'SIEM & Log Analysis',
-                'icon': 'fa-stream',
-                'description': 'Use logs and SIEM tooling to detect suspicious behavior and refine alerts.'
-            },
-            'itpro_cloud_security': {
-                'id': 'itpro_cloud_security',
-                'title': 'Cloud Security (AWS/Azure Basics)',
-                'icon': 'fa-cloud',
-                'description': 'Foundational cloud hardening concepts: identity, network, storage, and logging.'
-            },
-            'itpro_ethical_hacking_ctf': {
-                'id': 'itpro_ethical_hacking_ctf',
-                'title': 'Ethical Hacking & CTF Concepts',
-                'icon': 'fa-flag-checkered',
-                'description': 'Learn from CTF-style challenges and responsible exploitation techniques.'
-            },
-            'itpro_os_hardening': {
-                'id': 'itpro_os_hardening',
-                'title': 'Linux & Windows Security Hardening',
-                'icon': 'fa-server',
-                'description': 'Baseline hardening, patching, and configuration for common server and desktop OSes.'
-            },
-            'itpro_exploit_dev_basics': {
-                'id': 'itpro_exploit_dev_basics',
-                'title': 'Exploit Development Basics',
-                'icon': 'fa-bomb',
-                'description': 'Memory corruption and exploit primitives for those starting in offensive research.'
-            },
-            'itpro_soc_concepts': {
-                'id': 'itpro_soc_concepts',
-                'title': 'Security Operations (SOC) Concepts',
-                'icon': 'fa-shield-alt',
-                'description': 'How a SOC functions day-to-day: triage, escalation, and continuous improvement.'
+                'description': 'How updates act like armor for your computer.'
             },
         },
-        'parent': {
-            'passwords': {'id': 'passwords', 'title': 'Help Your Child Lock Down Accounts', 'icon': 'fa-key', 'description': 'Teach strong passwords and account safety in a way kids get.'},
-            'phishing': {'id': 'phishing', 'title': 'Teaching Kids to Spot Scams', 'icon': 'fa-envelope-open-text', 'description': 'How to explain fake messages and “too good to be true” offers.'},
-            'browsing': {'id': 'browsing', 'title': 'Safe Browsing With Your Family', 'icon': 'fa-globe', 'description': 'Safe sites, screen time, and what to do when something looks wrong.'},
-            'parent_guide': {'id': 'parent_guide', 'title': 'Parental Guide Overview', 'icon': 'fa-users', 'description': 'What your child sees here and how you can support their learning.'},
-            'parental_guidelines': {'id': 'parental_guidelines', 'title': 'Parental Cyber Safety Guidelines', 'icon': 'fa-list-check', 'description': 'Clear, practical house rules to keep your child safer online.'},
+        'college': {
+            'phishing': {
+                'id': 'college_phishing',
+                'title': 'Phishing',
+                'icon': 'fa-fish',
+                'description': 'Analyze manipulative information asymmetry and spear phishing.'
+            },
+            'ransomware': {
+                'id': 'college_ransomware',
+                'title': 'Ransomware',
+                'icon': 'fa-lock',
+                'description': 'Understand cryptographic hostage situations in academic research.'
+            },
+            'social_engineering': {
+                'id': 'college_social_engineering',
+                'title': 'Social Engineering',
+                'icon': 'fa-user-secret',
+                'description': 'Learn about psychological manipulation in collaborative environments.'
+            },
+            'password_security': {
+                'id': 'college_passwords',
+                'title': 'Password Security',
+                'icon': 'fa-key',
+                'description': 'Master entropy and advanced authentication complexity.'
+            },
+            'data_privacy': {
+                'id': 'college_privacy',
+                'title': 'Data Privacy',
+                'icon': 'fa-user-shield',
+                'description': 'Explore the privacy paradox and data ethics in the digital age.'
+            },
+            'zero_day_threats': {
+                'id': 'college_zero_day',
+                'title': 'Zero Day Threats',
+                'icon': 'fa-exclamation-triangle',
+                'description': 'Vulnerability research and institutional risk assessment.'
+            },
+        },
+        'corporate': {
+            'phishing': {
+                'id': 'corporate_phishing',
+                'title': 'Phishing & BEC',
+                'icon': 'fa-fish',
+                'description': 'Defend against Business Email Compromise and executive impersonation.'
+            },
+            'ransomware': {
+                'id': 'corporate_ransomware',
+                'title': 'Ransomware',
+                'icon': 'fa-lock',
+                'description': 'Protect business continuity and avoid organizational liability.'
+            },
+            'social_engineering': {
+                'id': 'corporate_social_engineering',
+                'title': 'Social Engineering',
+                'icon': 'fa-user-secret',
+                'description': 'Recognize professional pretexts and Vishing (Voice Phishing) tricks.'
+            },
+            'password_security': {
+                'id': 'corporate_passwords',
+                'title': 'Credential Security',
+                'icon': 'fa-key',
+                'description': 'MFA best practices and protecting the corporate perimeter.'
+            },
+            'data_privacy': {
+                'id': 'corporate_privacy',
+                'title': 'Data Privacy',
+                'icon': 'fa-user-shield',
+                'description': 'Manage compliance (GDPR/HIPAA) and sensitive customer PII.'
+            },
+            'zero_day_threats': {
+                'id': 'corporate_zero_day',
+                'title': 'Zero Day Threats',
+                'icon': 'fa-exclamation-triangle',
+                'description': 'Build organizational resilience against known-unknown threats.'
+            },
+        },
+        'it_team': {
+            'phishing': {
+                'id': 'it_team_phishing',
+                'title': 'Phishing Analysis',
+                'icon': 'fa-fish',
+                'description': 'Analyze payloads, AiTM proxies, and harvesting frameworks.'
+            },
+            'ransomware': {
+                'id': 'it_team_ransomware',
+                'title': 'Ransomware Mechanics',
+                'icon': 'fa-lock',
+                'description': 'Deep dive into cryptographic analysis and lateral movement.'
+            },
+            'social_engineering': {
+                'id': 'it_team_social_engineering',
+                'title': 'Social Engineering',
+                'icon': 'fa-user-secret',
+                'description': 'Advanced pretexting, OSINT, and supply chain attack vectors.'
+            },
+            'password_security': {
+                'id': 'it_team_passwords',
+                'title': 'Credential Security',
+                'icon': 'fa-key',
+                'description': 'JWT analysis, JIT access, and hardware-backed identities.'
+            },
+            'data_privacy': {
+                'id': 'it_team_privacy',
+                'title': 'Data Privacy',
+                'icon': 'fa-user-shield',
+                'description': 'Technical forensics, leak prevention, and egress filtering.'
+            },
+            'zero_day_threats': {
+                'id': 'it_team_zero_day',
+                'title': 'Zero Day Research',
+                'icon': 'fa-exclamation-triangle',
+                'description': 'Vulnerability research, exploit mitigation, and fuzzing.'
+            },
         },
     }
     
-    mod_map = MODULES_BY_USER.get(user_type, MODULES_BY_USER['student'])
+    mod_map = MODULES_BY_USER.get(user_type, MODULES_BY_USER['school'])
+
     modules = [mod_map[mid] for mid in module_ids if mid in mod_map]
-    
-    # For parents, also expose the student modules so the UI can show
-    # "what your child can access" based on the student track.
-    child_modules = None
-    if user_type == 'parent':
-        student_ids = modules_by_type['student']
-        student_map = MODULES_BY_USER['student']
-        child_modules = [student_map[mid] for mid in student_ids if mid in student_map]
     
     response = {
         'modules': modules,
         'user_type': user_type
     }
-    if child_modules is not None:
-        response['child_modules'] = child_modules
     
     return jsonify(response)
 
@@ -738,240 +593,44 @@ def get_learning_modules():
 
 # Map topic-specific module IDs to underlying awareness sections
 TOPIC_MODULE_CONFIG = {
-    # Student mode (Awareness Level)
-    'student_intro_cybersecurity': {
-        'base': 'student',
-        'section_titles': ['Introduction to Cybersecurity'],
-        'title': 'Introduction to Cybersecurity',
-    },
-    'student_cyber_threats': {
-        'base': 'student',
-        'section_titles': ['Types of Cyber Threats'],
-        'title': 'Types of Cyber Threats',
-    },
-    'student_strong_passwords': {
-        'base': 'student',
-        'section_titles': ['Password and Authentication Safety'],
-        'title': 'Strong Password Practices',
-    },
-    'student_phishing_social_engineering': {
-        'base': 'student',
-        'section_titles': [
-            'Phishing: When Messages Try to Trick You',
-            'Social Engineering: When People Trick You on Purpose',
-        ],
-        'title': 'Phishing & Social Engineering',
-    },
-    'student_safe_browsing': {
-        'base': 'student',
-        'section_titles': ['Safe Browsing Habits'],
-        'title': 'Safe Browsing Habits',
-    },
-    'student_social_media_safety': {
-        'base': 'student',
-        'section_titles': ['Privacy and Data Protection'],
-        'title': 'Social Media Safety',
-    },
-    'student_email_security': {
-        'base': 'student',
-        'section_titles': ['Email Security Basics'],
-        'title': 'Email Security Basics',
-    },
-    'student_malware_awareness': {
-        'base': 'student',
-        'section_titles': ['Malware: When Downloads or Links Hurt Your Device'],
-        'title': 'Malware Awareness',
-    },
-    'student_mobile_security': {
-        'base': 'student',
-        'section_titles': ['Mobile Security Basics'],
-        'title': 'Mobile Security Basics',
-    },
-    'student_online_privacy': {
-        'base': 'student',
-        'section_titles': ['Privacy and Data Protection'],
-        'title': 'Online Privacy & Digital Footprint',
-    },
-    'student_2fa': {
-        'base': 'student',
-        'section_titles': ['Password and Authentication Safety'],
-        'title': 'Two-Factor Authentication (2FA)',
-    },
-    'student_cyberbullying': {
-        'base': 'student',
-        'section_titles': ['Cyberbullying & Online Etiquette'],
-        'title': 'Cyberbullying & Online Etiquette',
-    },
-    'student_basic_data_protection': {
-        'base': 'student',
-        'section_titles': ['Privacy and Data Protection'],
-        'title': 'Basic Data Protection',
-    },
+    # School
+    'school_phishing': {'base': 'school', 'section_titles': ['Phishing: When Messages Try to Trick You'], 'title': 'Phishing Awareness'},
+    'school_ransomware': {'base': 'school', 'section_titles': ['Ransomware: The Digital Lock'], 'title': 'Ransomware Awareness'},
+    'school_social_engineering': {'base': 'school', 'section_titles': ['Social Engineering: The People Trick'], 'title': 'Social Engineering Defense'},
+    'school_passwords': {'base': 'school', 'section_titles': ['Password Security: Your Secret Keys'], 'title': 'Password Security'},
+    'school_privacy': {'base': 'school', 'section_titles': ['Data Privacy: Your Digital Footprint'], 'title': 'Data Privacy'},
+    'school_zero_day': {'base': 'school', 'section_titles': ['Zero Day Threats: The Surprise Vulnerability'], 'title': 'Zero Day Threats'},
 
-    # Enterprise mode (Employee Training) – all sections pulled from DIGITAL_CITIZEN_AWARENESS
-    'enterprise_info_security_fundamentals': {
-        'base': 'digital',
-        'section_titles': ['Information Security Fundamentals'],
-        'title': 'Information Security Fundamentals',
-    },
-    'enterprise_security_policies': {
-        'base': 'digital',
-        'section_titles': ['Organizational Security Policies'],
-        'title': 'Organizational Security Policies',
-    },
-    'enterprise_phishing_spear': {
-        'base': 'digital',
-        'section_titles': ['Phishing & Spear Phishing'],
-        'title': 'Phishing & Spear Phishing',
-    },
-    'enterprise_bec': {
-        'base': 'digital',
-        'section_titles': ['Business Email Compromise (BEC)'],
-        'title': 'Business Email Compromise (BEC)',
-    },
-    'enterprise_ransomware_awareness': {
-        'base': 'digital',
-        'section_titles': ['Malware and Ransomware: Protecting Your Devices and Data'],
-        'title': 'Ransomware Awareness',
-    },
-    'enterprise_secure_remote_work': {
-        'base': 'digital',
-        'section_titles': ['Secure Remote Work Practices'],
-        'title': 'Secure Remote Work Practices',
-    },
-    'enterprise_endpoint_security': {
-        'base': 'digital',
-        'section_titles': ['Endpoint Security'],
-        'title': 'Endpoint Security',
-    },
-    'enterprise_data_classification': {
-        'base': 'digital',
-        'section_titles': ['Data Classification & Handling'],
-        'title': 'Data Classification & Handling',
-    },
-    'enterprise_insider_threats': {
-        'base': 'digital',
-        'section_titles': ['Insider Threat Awareness'],
-        'title': 'Insider Threat Awareness',
-    },
-    'enterprise_social_engineering_defense': {
-        'base': 'digital',
-        'section_titles': ['Social Engineering: When Strangers Use Trust to Steal'],
-        'title': 'Social Engineering Defense',
-    },
-    'enterprise_incident_reporting': {
-        'base': 'digital',
-        'section_titles': ['Incident Reporting Procedures'],
-        'title': 'Incident Reporting Procedures',
-    },
-    'enterprise_password_mfa': {
-        'base': 'digital',
-        'section_titles': ['Password and Authentication Safety'],
-        'title': 'Password Management & MFA',
-    },
-    'enterprise_secure_cloud': {
-        'base': 'digital',
-        'section_titles': ['Secure Cloud Usage'],
-        'title': 'Secure Cloud Usage',
-    },
-    'enterprise_compliance_basics': {
-        'base': 'digital',
-        'section_titles': ['Compliance & Regulatory Basics'],
-        'title': 'Compliance & Regulatory Basics',
-    },
-    'enterprise_physical_security': {
-        'base': 'digital',
-        'section_titles': ['Physical Security Awareness'],
-        'title': 'Physical Security Awareness',
-    },
+    # College
+    'college_phishing': {'base': 'college', 'section_titles': ['Phishing: Manipulative Information Asymmetry'], 'title': 'Phishing & Institutional Risk'},
+    'college_ransomware': {'base': 'college', 'section_titles': ['Ransomware: Cryptographic Hostage Situations'], 'title': 'Ransomware & Continuity'},
+    'college_social_engineering': {'base': 'college', 'section_titles': ['Social Engineering: Psychological Manipulation'], 'title': 'Social Engineering Defense'},
+    'college_passwords': {'base': 'college', 'section_titles': ['Password Security: Entropy and Authentication Complexity'], 'title': 'Authentication & Entropy'},
+    'college_privacy': {'base': 'college', 'section_titles': ['Data Privacy: The Privacy Paradox'], 'title': 'Data Ethics & Privacy'},
+    'college_zero_day': {'base': 'college', 'section_titles': ['Zero Day Threats: Structural Vulnerabilities and Security Research'], 'title': 'Zero Day Threats'},
 
-    # IT Professional mode (Advanced / Technical)
-    'itpro_networking_fundamentals': {
-        'base': 'itpro',
-        'section_titles': ['Networking Fundamentals'],
-        'title': 'Networking Fundamentals (TCP/IP, OSI Model)',
-    },
-    'itpro_cryptography': {
-        'base': 'itpro',
-        'section_titles': ['Cryptography Basics'],
-        'title': 'Cryptography (Symmetric, Asymmetric, Hashing, PKI)',
-    },
-    'itpro_web_app_security': {
-        'base': 'itpro',
-        'section_titles': ['Web Application Security (OWASP Top 10)'],
-        'title': 'Web Application Security (OWASP Top 10)',
-    },
-    'itpro_network_security': {
-        'base': 'itpro',
-        'section_titles': ['Networking Fundamentals'],
-        'title': 'Network Security (Firewalls, IDS/IPS)',
-    },
-    'itpro_vuln_pt': {
-        'base': 'itpro',
-        'section_titles': ['Vulnerability Assessment & Penetration Testing'],
-        'title': 'Vulnerability Assessment & Penetration Testing',
-    },
-    'itpro_secure_coding': {
-        'base': 'itpro',
-        'section_titles': ['Secure Coding Practices'],
-        'title': 'Secure Coding Practices',
-    },
-    'itpro_malware_analysis': {
-        'base': 'itpro',
-        'section_titles': ['Malware and Ransomware Lifecycle'],
-        'title': 'Malware Analysis',
-    },
-    'itpro_digital_forensics': {
-        'base': 'itpro',
-        'section_titles': ['Digital Forensics'],
-        'title': 'Digital Forensics',
-    },
-    'itpro_reverse_engineering': {
-        'base': 'itpro',
-        'section_titles': ['Reverse Engineering'],
-        'title': 'Reverse Engineering',
-    },
-    'itpro_incident_response_threat_hunting': {
-        'base': 'itpro',
-        'section_titles': ['Malware and Ransomware Lifecycle', 'Security Operations (SOC) Concepts'],
-        'title': 'Incident Response & Threat Hunting',
-    },
-    'itpro_siem_logs': {
-        'base': 'itpro',
-        'section_titles': ['SIEM & Log Analysis'],
-        'title': 'SIEM & Log Analysis',
-    },
-    'itpro_cloud_security': {
-        'base': 'itpro',
-        'section_titles': ['Cloud Security Basics'],
-        'title': 'Cloud Security (AWS/Azure Security Basics)',
-    },
-    'itpro_ethical_hacking_ctf': {
-        'base': 'itpro',
-        'section_titles': ['Ethical Hacking & CTF Concepts'],
-        'title': 'Ethical Hacking & CTF Concepts',
-    },
-    'itpro_os_hardening': {
-        'base': 'itpro',
-        'section_titles': ['Linux & Windows Security Hardening'],
-        'title': 'Linux & Windows Security Hardening',
-    },
-    'itpro_exploit_dev_basics': {
-        'base': 'itpro',
-        'section_titles': ['Exploit Development Basics'],
-        'title': 'Exploit Development Basics',
-    },
-    'itpro_soc_concepts': {
-        'base': 'itpro',
-        'section_titles': ['Security Operations (SOC) Concepts'],
-        'title': 'Security Operations (SOC) Concepts',
-    },
+    # Corporate
+    'corporate_phishing': {'base': 'corporate', 'section_titles': ['Phishing & BEC: Business Email Compromise'], 'title': 'Phishing & BEC Defense'},
+    'corporate_ransomware': {'base': 'corporate', 'section_titles': ['Ransomware: Protecting Business Continuity'], 'title': 'Ransomware & Business Risk'},
+    'corporate_social_engineering': {'base': 'corporate', 'section_titles': ['Social Engineering: The Professional Pretext'], 'title': 'Professional Social Engineering'},
+    'corporate_passwords': {'base': 'corporate', 'section_titles': ['Credential Security: Protecting the Corporate Perimeter'], 'title': 'Credential Protection'},
+    'corporate_privacy': {'base': 'corporate', 'section_titles': ['Data Privacy: Compliance & Liability'], 'title': 'Compliance & PII Privacy'},
+    'corporate_zero_day': {'base': 'corporate', 'section_titles': ['Zero Day Threats: Organizational Resilience'], 'title': 'Zero Day Resilience'},
+
+    # IT Team
+    'it_team_phishing': {'base': 'it_team', 'section_titles': ['Phishing: Payload Analysis & Credential Harvesting'], 'title': 'Phishing Payload Analysis'},
+    'it_team_ransomware': {'base': 'it_team', 'section_titles': ['Ransomware: Cryptographic Analysis & Lateral Movement'], 'title': 'Ransomware Intrusion Analysis'},
+    'it_team_social_engineering': {'base': 'it_team', 'section_titles': ['Social Engineering: Advanced Pretexting & Vishing'], 'title': 'Advanced Social Engineering'},
+    'it_team_passwords': {'base': 'it_team', 'section_titles': ['Credential Security: Cryptographic Identities & Token Analysis'], 'title': 'Identity & Cryptographic Security'},
+    'it_team_privacy': {'base': 'it_team', 'section_titles': ['Data Privacy: Technical Forensics & Leak Prevention'], 'title': 'Forensic Data Privacy'},
+    'it_team_zero_day': {'base': 'it_team', 'section_titles': ['Zero Day Threats: Vulnerability Research & Exploit Mitigation'], 'title': 'Zero Day Vulnerability Research'},
 }
 
 BASE_AWARENESS_BY_KEY = {
-    'student': STUDENT_AWARENESS,
-    'digital': DIGITAL_CITIZEN_AWARENESS,
-    'itpro': ITPRO_AWARENESS,
+    'school': SCHOOL_AWARENESS,
+    'college': COLLEGE_AWARENESS,
+    'corporate': DIGITAL_CITIZEN_AWARENESS,
+    'it_team': ITPRO_AWARENESS,
 }
 
 
@@ -1007,7 +666,8 @@ def build_topic_module(module_id):
 def get_learning_module(module_id):
     """Get learning module content"""
     awareness_map = {
-        'student_awareness': STUDENT_AWARENESS,
+        'school_awareness': SCHOOL_AWARENESS,
+        'college_awareness': COLLEGE_AWARENESS,
         'digital_citizen_awareness': DIGITAL_CITIZEN_AWARENESS,
         'itpro_awareness': ITPRO_AWARENESS,
     }

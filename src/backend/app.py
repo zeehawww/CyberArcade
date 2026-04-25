@@ -278,14 +278,13 @@ def index():
     """Serve the main application"""
     return send_from_directory('../frontend', 'index.html')
 
-@app.route('/admin')
-def admin_page():
-    """Serve admin content hub"""
-    return send_from_directory('../frontend', 'admin.html')
-
 @app.route('/<path:filename>')
 def serve_static(filename):
     """Serve static files"""
+    # Block direct access to admin assets on this port
+    if 'admin' in filename.lower():
+        return jsonify({"error": "Unauthorized. Access admin via port 8081."}), 403
+        
     if filename.endswith(('.css', '.js', '.html')):
         return send_from_directory('../frontend', filename)
     return send_from_directory('.', filename)

@@ -906,12 +906,18 @@ function renderInfoCard(title, d) {
 
 function renderPoster(title, d) {
     const colors = d.color_scheme || ['#ff6b6b','#ee5a24'];
-    return `<div style="background:linear-gradient(135deg,${colors[0]},${colors[1]});padding:2rem;text-align:center;min-height:280px;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-        <div style="font-size:2.5rem;margin-bottom:.75rem;">${d.category?_catIcon(d.category):'🛡️'}</div>
-        <h3 style="color:#fff;font-size:1.3rem;margin-bottom:.5rem;text-shadow:0 2px 8px rgba(0,0,0,0.3);">${escapeHtml(d.headline||title)}</h3>
-        <p style="color:rgba(255,255,255,0.9);font-size:1.1rem;font-weight:700;margin-bottom:.75rem;font-style:italic;">"${escapeHtml(d.tagline||'')}"</p>
-        <p style="color:rgba(255,255,255,0.8);font-size:.85rem;max-width:300px;line-height:1.5;">${escapeHtml(d.key_message||'')}</p>
-        <div style="margin-top:1rem;padding:.4rem 1rem;background:rgba(0,0,0,0.25);border-radius:20px;color:rgba(255,255,255,0.9);font-size:.75rem;">${escapeHtml(d.call_to_action||'')}</div>
+    const headline = escapeHtml(d.headline || title || 'Cyber Security Alert');
+    const tagline = d.tagline ? `"${escapeHtml(d.tagline)}"` : '';
+    const message = escapeHtml(d.key_message || '');
+    const cta = escapeHtml(d.call_to_action || 'Stay Alert');
+    const catIcon = d.category ? _catIcon(d.category) : '🛡️';
+
+    return `<div style="background:linear-gradient(135deg,${colors[0]},${colors[1]});padding:2rem;text-align:center;min-height:320px;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;border-radius:12px;">
+        <div style="font-size:3rem;margin-bottom:.75rem;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.2));">${catIcon}</div>
+        <h3 style="font-size:1.4rem;margin:0 0 .5rem;text-shadow:0 2px 4px rgba(0,0,0,0.3);font-family:'Orbitron',sans-serif;">${headline}</h3>
+        <p style="font-size:1.1rem;font-weight:700;margin-bottom:.75rem;font-style:italic;opacity:0.95;">${tagline}</p>
+        <p style="font-size:.9rem;max-width:300px;line-height:1.5;margin:0 0 1.25rem;opacity:0.9;">${message}</p>
+        <div style="padding:.5rem 1.25rem;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:25px;font-size:.8rem;font-weight:600;letter-spacing:0.5px;">${cta}</div>
     </div>`;
 }
 

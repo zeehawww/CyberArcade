@@ -13,7 +13,9 @@ from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .integrations import integrations_bp
+from .content_routes import content_bp
 from . import db
+from . import content_db as cdb
 from . import auth
 from .awareness_modules import SCHOOL_AWARENESS, COLLEGE_AWARENESS, DIGITAL_CITIZEN_AWARENESS, ITPRO_AWARENESS
 
@@ -21,9 +23,11 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 CORS(app, supports_credentials=True)
 app.register_blueprint(integrations_bp)
+app.register_blueprint(content_bp)
 
 # Initialize database on startup (SQLite or PostgreSQL from env)
 db.init_db()
+cdb.init_content_tables()
 
 # Auth routes
 @app.route('/api/auth/register', methods=['POST'])
@@ -274,10 +278,15 @@ def index():
     """Serve the main application"""
     return send_from_directory('../frontend', 'index.html')
 
+@app.route('/admin')
+def admin_page():
+    """Serve admin content hub"""
+    return send_from_directory('../frontend', 'admin.html')
+
 @app.route('/<path:filename>')
 def serve_static(filename):
     """Serve static files"""
-    if filename.endswith(('.css', '.js')):
+    if filename.endswith(('.css', '.js', '.html')):
         return send_from_directory('../frontend', filename)
     return send_from_directory('.', filename)
 

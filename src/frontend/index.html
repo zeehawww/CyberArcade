@@ -20,7 +20,9 @@
                 <a href="#home" class="nav-link active">Home</a>
                 <a href="#learn" class="nav-link">Learn</a>
                 <a href="#games" class="nav-link">Games</a>
+                <a href="#outputs" class="nav-link">AI Output</a>
                 <a href="#progress" class="nav-link">Progress</a>
+                <a href="/admin" class="nav-link" style="color:#a78bfa;"><i class="fas fa-cogs" style="margin-right:4px;"></i>Admin</a>
 
             </div>
             <div class="nav-auth" id="navAuth">
@@ -237,6 +239,24 @@
         </section>
 
         <!-- Progress Section -->
+        <section id="outputs" class="section">
+            <div class="section-header">
+                <h2>AI Output Studio</h2>
+                <p>See generated assets from your content pipeline in one place.</p>
+            </div>
+            <div class="card" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(0,255,255,0.2); border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+                    <div style="color:#cbd5e1;font-size:.95rem;">
+                        Includes: micro-learning, infographic, poster, explainer script, quiz, scenario, video storyboard, comic, executive dashboard, and tone conversions.
+                    </div>
+                    <button class="btn btn-primary" onclick="loadOutputStudio()"><i class="fas fa-sync"></i> Refresh Output</button>
+                </div>
+            </div>
+            <div id="outputStudioSummary" class="quick-stats" style="margin-top: 0;"></div>
+            <div id="outputStudioList" class="games-grid"></div>
+        </section>
+
+        <!-- Progress Section -->
         <section id="progress" class="section">
             <div class="section-header">
                 <h2>Your Awareness Progress</h2>
@@ -338,6 +358,7 @@
         </div>
     </div>
 
+    <script src="games/snakeLadderLevels.js"></script>
     <script src="games/snakeLadder.js"></script>
     <script src="games/captureTheFlag.js"></script>
     <script src="games/caesarCipher.js"></script>

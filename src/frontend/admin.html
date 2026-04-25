@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberArcade – Admin Content Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-shield-alt"></i>
+            <span>CyberArcade</span>
+            <small>Admin Hub</small>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a href="#" class="nav-item" data-tab="content"><i class="fas fa-file-alt"></i>Content</a>
+            <a href="#" class="nav-item" data-tab="upload"><i class="fas fa-cloud-upload-alt"></i>Upload</a>
+            <a href="#" class="nav-item" data-tab="feeds"><i class="fas fa-rss"></i>API Feeds</a>
+            <a href="#" class="nav-item" data-tab="generate"><i class="fas fa-magic"></i>AI Engine</a>
+            <a href="#" class="nav-item" data-tab="visual"><i class="fas fa-palette"></i>Visual Engine</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/" class="nav-item"><i class="fas fa-arrow-left"></i>Back to App</a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+        <header class="topbar">
+            <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="topbar-actions">
+                <span class="status-badge"><i class="fas fa-circle"></i> System Online</span>
+            </div>
+        </header>
+
+        <!-- Dashboard Tab -->
+        <section class="tab-content active" id="tab-dashboard">
+            <div class="stats-row">
+                <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-file-alt"></i></div><div><h3 id="statContent">0</h3><p>Content Items</p></div></div>
+                <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-rss"></i></div><div><h3 id="statFeeds">0</h3><p>Active Feeds</p></div></div>
+                <div class="stat-card green"><div class="stat-icon"><i class="fas fa-magic"></i></div><div><h3 id="statGenerated">0</h3><p>Generated Assets</p></div></div>
+                <div class="stat-card orange"><div class="stat-icon"><i class="fas fa-tags"></i></div><div><h3>6</h3><p>Categories</p></div></div>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-info-circle"></i> Quick Start Guide</h2>
+                <div class="guide-grid">
+                    <div class="guide-item" onclick="switchTab('content')"><span class="guide-num">1</span><h4>Create Content</h4><p>Manually enter cybersecurity articles or advisories</p></div>
+                    <div class="guide-item" onclick="switchTab('upload')"><span class="guide-num">2</span><h4>Upload Files</h4><p>Import PDF, DOCX, or PPT files for text extraction</p></div>
+                    <div class="guide-item" onclick="switchTab('feeds')"><span class="guide-num">3</span><h4>Fetch Feeds</h4><p>Pull latest from CISA, NIST, Hacker News, OWASP</p></div>
+                    <div class="guide-item" onclick="switchTab('generate')"><span class="guide-num">4</span><h4>AI Generate</h4><p>Create micro-learning, quizzes, scenarios & more</p></div>
+                </div>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-list"></i> Recent Content</h2>
+                <div id="recentContent" class="content-list">Loading...</div>
+            </div>
+        </section>
+
+        <!-- Content Tab -->
+        <section class="tab-content" id="tab-content">
+            <div class="card">
+                <div class="card-header"><h2><i class="fas fa-plus-circle"></i> Create New Content</h2></div>
+                <form id="contentForm" onsubmit="createContent(event)">
+                    <div class="form-group"><label>Title</label><input type="text" id="contentTitle" required placeholder="e.g. New Phishing Campaign Targeting Healthcare"></div>
+                    <div class="form-group"><label>Content Body</label><textarea id="contentBody" rows="8" required placeholder="Enter the full article, advisory, or awareness content here..."></textarea></div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save & Auto-Categorize</button>
+                </form>
+            </div>
+            <div class="card">
+                <div class="card-header"><h2><i class="fas fa-database"></i> All Content</h2><button class="btn btn-sm" onclick="loadContent()"><i class="fas fa-sync"></i> Refresh</button></div>
+                <div id="contentList" class="content-list">Loading...</div>
+            </div>
+        </section>
+
+        <!-- Upload Tab -->
+        <section class="tab-content" id="tab-upload">
+            <div class="card">
+                <div class="card-header"><h2><i class="fas fa-cloud-upload-alt"></i> Upload Files</h2></div>
+                <div class="upload-zone" id="uploadZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drag & Drop files here</h3>
+                    <p>or click to browse — PDF, DOCX, PPTX supported</p>
+                    <input type="file" id="fileInput" accept=".pdf,.docx,.pptx" hidden>
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()"><i class="fas fa-folder-open"></i> Browse Files</button>
+                </div>
+                <div id="uploadStatus" class="upload-status" style="display:none;"></div>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-check-circle"></i> Supported Formats</h2>
+                <div class="format-grid">
+                    <div class="format-item"><i class="fas fa-file-pdf"></i><h4>PDF</h4><p>Reports, whitepapers, advisories</p></div>
+                    <div class="format-item"><i class="fas fa-file-word"></i><h4>DOCX</h4><p>Documents, policies, procedures</p></div>
+                    <div class="format-item"><i class="fas fa-file-powerpoint"></i><h4>PPTX</h4><p>Presentations, training decks</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feeds Tab -->
+        <section class="tab-content" id="tab-feeds">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-rss"></i> API Feed Sources</h2>
+                    <button class="btn btn-primary" onclick="fetchAllFeeds()"><i class="fas fa-download"></i> Fetch All Feeds</button>
+                </div>
+                <div id="feedsList">Loading...</div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h2><i class="fas fa-plus"></i> Add Custom Feed</h2></div>
+                <form id="feedForm" onsubmit="addFeed(event)">
+                    <div class="form-row">
+                        <div class="form-group"><label>Feed Name</label><input type="text" id="feedName" required placeholder="e.g. US-CERT"></div>
+                        <div class="form-group"><label>URL</label><input type="url" id="feedUrl" required placeholder="https://..."></div>
+                        <div class="form-group"><label>Type</label>
+                            <select id="feedType"><option value="rss">RSS/Atom</option><option value="nist">NIST JSON</option><option value="cisa">CISA</option><option value="hackernews">Hacker News</option><option value="owasp">OWASP</option></select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Feed</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- AI Engine Tab -->
+        <section class="tab-content" id="tab-generate">
+            <div class="card">
+                <div class="card-header"><h2><i class="fas fa-magic"></i> AI-Powered Content Engine</h2></div>
+                <p class="card-desc">Select a content item, then generate learning assets automatically.</p>
+                <div class="form-group"><label>Select Content</label><select id="genContentSelect" onchange="loadContentPreview()"><option value="">-- Choose content --</option></select></div>
+                <div id="genPreview" class="preview-box" style="display:none;"></div>
+            </div>
+            <div class="card" id="genActions" style="display:none;">
+                <h2><i class="fas fa-wand-magic-sparkles"></i> Content Simplification</h2>
+                <div class="gen-grid">
+                    <button class="gen-btn child" onclick="simplifyContent('child')"><i class="fas fa-child"></i>Child-Friendly</button>
+                    <button class="gen-btn college" onclick="simplifyContent('college')"><i class="fas fa-graduation-cap"></i>Academic</button>
+                    <button class="gen-btn business" onclick="simplifyContent('business')"><i class="fas fa-briefcase"></i>Business</button>
+                    <button class="gen-btn technical" onclick="simplifyContent('technical')"><i class="fas fa-code"></i>Technical</button>
+                </div>
+                <h2 style="margin-top:2rem;"><i class="fas fa-cogs"></i> Adaptive Content Generation</h2>
+                <div class="gen-grid">
+                    <button class="gen-btn" onclick="generateType('micro_learning')"><i class="fas fa-bolt"></i>Micro-Learning</button>
+                    <button class="gen-btn" onclick="generateType('infographic')"><i class="fas fa-chart-pie"></i>Infographic</button>
+                    <button class="gen-btn" onclick="generateType('poster')"><i class="fas fa-image"></i>Poster</button>
+                    <button class="gen-btn" onclick="generateType('explainer_script')"><i class="fas fa-film"></i>Explainer Script</button>
+                    <button class="gen-btn" onclick="generateType('quiz')"><i class="fas fa-question-circle"></i>Quiz Questions</button>
+                    <button class="gen-btn" onclick="generateType('scenario')"><i class="fas fa-crosshairs"></i>Scenario Sim</button>
+                </div>
+                <div style="margin-top:1.5rem;"><button class="btn btn-primary btn-lg" onclick="generateAll()"><i class="fas fa-rocket"></i> Generate All Types</button></div>
+            </div>
+            <div class="card" id="genResults" style="display:none;">
+                <div class="card-header"><h2><i class="fas fa-check-double"></i> Generated Output</h2></div>
+                <div id="genOutput"></div>
+            </div>
+        </section>
+
+        <!-- Visual Engine Tab -->
+        <section class="tab-content" id="tab-visual">
+            <div class="card">
+                <div class="card-header"><h2><i class="fas fa-palette"></i> Visual Representation Engine</h2></div>
+                <p class="card-desc">Select content and generate visual assets.</p>
+                <div class="form-group"><label>Select Content</label><select id="visContentSelect" onchange="loadVisPreview()"><option value="">-- Choose content --</option></select></div>
+                <div id="visPreview" class="preview-box" style="display:none;"></div>
+            </div>
+            <div class="card" id="visActions" style="display:none;">
+                <h2><i class="fas fa-paint-brush"></i> Generate Visual Content</h2>
+                <div class="gen-grid">
+                    <button class="gen-btn vis" onclick="generateType('infographic','vis')"><i class="fas fa-chart-bar"></i>Infographic</button>
+                    <button class="gen-btn vis" onclick="generateType('video_storyboard','vis')"><i class="fas fa-video"></i>Video Storyboard</button>
+                    <button class="gen-btn vis" onclick="generateType('poster','vis')"><i class="fas fa-th-large"></i>Social Poster</button>
+                    <button class="gen-btn vis" onclick="generateType('comic','vis')"><i class="fas fa-book-open"></i>Comic (Kids)</button>
+                    <button class="gen-btn vis" onclick="generateType('executive_dashboard','vis')"><i class="fas fa-chart-line"></i>Exec Dashboard</button>
+                </div>
+            </div>
+            <div class="card" id="visResults" style="display:none;">
+                <div class="card-header"><h2><i class="fas fa-eye"></i> Visual Output</h2></div>
+                <div id="visOutput"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="admin.js"></script>
+</body>
+</html>

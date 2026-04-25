@@ -23,28 +23,28 @@ const AUDIENCE_CONFIG = {
     school: {
         name: 'School',
         gamesSectionTitle: 'Games for School Learners',
-        gamesSectionSubtitle: 'Learn online safety and spot scams with Cyber Snake & Ladder.',
+        gamesSectionSubtitle: 'Flagship game: Cyber Snake & Ladder with mission-based awareness levels.',
         heroSubtitle: 'Learn to stay safe online with content made for students. Spot fake messages, keep your accounts safe, and browse the web without getting tricked.',
         gameIds: ['snake-ladder']
     },
     college: {
         name: 'College',
         gamesSectionTitle: 'Games for College Students',
-        gamesSectionSubtitle: 'Test your security knowledge with Cyber Snake & Ladder.',
+        gamesSectionSubtitle: 'Flagship game: Cyber Snake & Ladder with deeper threat scenarios.',
         heroSubtitle: 'Stay secure throughout your academic journey. Master password safety, recognize advanced phishing, and protect your digital identity.',
         gameIds: ['snake-ladder']
     },
     corporate: {
         name: 'Corporate',
         gamesSectionTitle: 'Corporate Security Training',
-        gamesSectionSubtitle: 'Protect company data while playing Cyber Snake & Ladder.',
+        gamesSectionSubtitle: 'Flagship game: Cyber Snake & Ladder for practical security decisions.',
         heroSubtitle: 'Stay safe as you work, shop, and browse. Learn to recognize scams, protect your logins, and keep your privacy in check.',
         gameIds: ['snake-ladder']
     },
     it_team: {
         name: 'IT Team',
         gamesSectionTitle: 'Security Ops Training',
-        gamesSectionSubtitle: 'Professional security concepts simplified in Cyber Snake & Ladder.',
+        gamesSectionSubtitle: 'Flagship game: Cyber Snake & Ladder with advanced defender challenges.',
         heroSubtitle: 'Hands-on challenges for IT and security professionals. Sharpen skills with specialized cyber defense concepts.',
         gameIds: ['snake-ladder']
     }
@@ -54,7 +54,7 @@ const AUDIENCE_CONFIG = {
 // Social Engineering = broader scenarios (pretexting, tailgating); Spot the Threat = visual/UI.
 // Security Quiz and Snake & Ladder use separate question sets (no repeating content).
 const GAME_META = {
-    'snake-ladder': { title: 'Cyber Snake & Ladder', description: 'Navigate through cybersecurity challenges in this classic board game', icon: 'fa-dice', difficulty: 'Easy', duration: '10-15 min' },
+    'snake-ladder': { title: 'Cyber Snake & Ladder', description: '3 levels, 60 unique questions, combo scoring, and Solo-vs-Bot or Duel mode.', icon: 'fa-dice', difficulty: 'Easy → Hard', duration: '15-30 min' },
     'phishing-detective': { title: 'Phishing Detective', description: 'Identify phishing in emails, WhatsApp, websites, and more', icon: 'fa-envelope-open-text', difficulty: 'Medium', duration: '15-20 min' },
     'social-engineering': { title: 'Social Engineering Simulator', description: 'Recognize pretexting, tailgating, and other social engineering tactics', icon: 'fa-user-secret', difficulty: 'Medium', duration: '8-12 min' },
     'caesar-cipher': { title: 'Caesar Cipher', description: 'Learn encryption by mastering the Caesar cipher', icon: 'fa-code', difficulty: 'Medium', duration: '10-15 min' },
@@ -104,6 +104,7 @@ function initializeApp() {
     loadTodaysSecurityTip();
     loadSecurityChecklist();
     loadLearningModules();
+    loadOutputStudio();
     renderGamesGrid();
     updateHeroForAudience();
     updateNavForUserType();
@@ -793,6 +794,9 @@ function showSection(sectionName) {
         if (sectionName === 'learn') {
             setTimeout(initializeFlashcards, 100);
         }
+        if (sectionName === 'outputs') {
+            loadOutputStudio();
+        }
     }
 }
 
@@ -824,6 +828,202 @@ window.submitGameResult = function(gameType, score, duration) {
         console.error('Error submitting game result:', error);
     });
 };
+
+window.loadOutputStudio = loadOutputStudio;
+
+function loadOutputStudio() {
+    const listEl = document.getElementById('outputStudioList');
+    const summaryEl = document.getElementById('outputStudioSummary');
+    if (!listEl || !summaryEl) return;
+
+    listEl.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748b;">Loading generated assets...</div>';
+    summaryEl.innerHTML = '';
+
+    fetch('/api/content/generated?limit=80')
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                listEl.innerHTML = '<div style="text-align:center;padding:3rem;color:#64748b;"><div style="font-size:3rem;margin-bottom:1rem;">📭</div><h3 style="color:#94a3b8;margin-bottom:.5rem;">No Output Yet</h3><p>Go to <a href="/admin" style="color:#00d4ff;">Admin Hub</a> → Content → AI Engine to generate assets.</p></div>';
+                return;
+            }
+            const summary = data.summary || {};
+            const summaryKeys = Object.keys(summary).sort((a, b) => summary[b] - summary[a]);
+            const typeIcons = {micro_learning:'⚡',infographic:'📊',poster:'🖼️',explainer_script:'🎬',quiz:'❓',scenario:'🎯',video_storyboard:'🎥',comic:'📖',executive_dashboard:'📈',tone_child:'👶',tone_college:'🎓',tone_business:'💼',tone_technical:'🔧'};
+            summaryEl.innerHTML = summaryKeys.length
+                ? summaryKeys.slice(0, 6).map(k => `<div class="stat-card"><div class="stat-icon">${typeIcons[k]||'📄'}</div><div class="stat-content"><h3>${summary[k]}</h3><p>${formatGenType(k)}</p></div></div>`).join('')
+                : '<div class="stat-card"><div class="stat-content"><h3>0</h3><p>No generated assets yet</p></div></div>';
+
+            const items = data.items || [];
+            if (!items.length) {
+                listEl.innerHTML = '<div style="text-align:center;padding:3rem;color:#64748b;"><div style="font-size:3rem;margin-bottom:1rem;">🚀</div><h3 style="color:#94a3b8;margin-bottom:.5rem;">Ready to Generate</h3><p>Go to <a href="/admin" style="color:#00d4ff;">Admin Hub</a> → add content → use AI Engine</p></div>';
+                return;
+            }
+            listEl.style.display = 'grid';
+            listEl.style.gridTemplateColumns = 'repeat(auto-fill,minmax(340px,1fr))';
+            listEl.style.gap = '1rem';
+            listEl.innerHTML = items.map(item => renderGenerated(item)).join('');
+        })
+        .catch(() => {
+            listEl.innerHTML = '<div style="text-align:center;padding:3rem;color:#ef4444;">Could not load output. Is the server running?</div>';
+        });
+}
+
+function formatGenType(t) {
+    return String(t || 'unknown').replaceAll('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function renderGenerated(item) {
+    let body;
+    try { body = JSON.parse(item.body); } catch(e) { body = item.body; }
+    const type = item.gen_type || '';
+    const title = escapeHtml(item.title || formatGenType(type));
+    const wrap = (inner) => `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:14px;overflow:hidden;transition:all .2s;" onmouseenter="this.style.borderColor='rgba(0,212,255,0.4)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)'">${inner}</div>`;
+
+    if (type === 'infographic' && typeof body === 'object') return wrap(renderInfoCard(title, body));
+    if (type === 'poster' && typeof body === 'object') return wrap(renderPoster(title, body));
+    if (type === 'comic' && typeof body === 'object') return wrap(renderComic(title, body));
+    if (type === 'video_storyboard' && typeof body === 'object') return wrap(renderStoryboard(title, body));
+    if (type === 'quiz' && typeof body === 'object') return wrap(renderQuizCard(title, body));
+    if (type === 'scenario' && typeof body === 'object') return wrap(renderScenarioCard(title, body));
+    if (type === 'executive_dashboard' && typeof body === 'object') return wrap(renderExecDash(title, body));
+    if (type === 'explainer_script' && typeof body === 'object') return wrap(renderScript(title, body));
+    if (type === 'micro_learning' && typeof body === 'object') return wrap(renderMicroLearn(title, body));
+    // Tone conversions or fallback
+    return wrap(`<div style="padding:1.25rem;"><h3 style="color:#fff;font-size:1rem;margin-bottom:.75rem;">${title}</h3><p style="color:#cbd5e1;font-size:.88rem;line-height:1.6;white-space:pre-wrap;">${escapeHtml(typeof body==='string'?body:JSON.stringify(body,null,2)).slice(0,600)}</p></div>`);
+}
+
+function renderInfoCard(title, d) {
+    const colors = d.color_scheme || ['#00d4ff','#0080ff'];
+    const stats = d.stats || [];
+    return `<div style="background:linear-gradient(135deg,${colors[0]}15,${colors[1]}10);padding:1.5rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;"><span style="font-size:1.5rem;">${d.icon||'📊'}</span><h3 style="color:${colors[0]};font-size:1rem;margin:0;">${escapeHtml(d.headline||title)}</h3></div>
+        <div style="display:grid;gap:.5rem;">
+            ${stats.map((s,i) => `<div style="padding:.6rem .75rem;background:rgba(0,0,0,0.2);border-radius:8px;border-left:3px solid ${colors[i%2]};"><span style="color:${colors[0]};font-size:.75rem;font-weight:600;">${escapeHtml(s.label)}</span><p style="color:#e2e8f0;font-size:.82rem;margin:.2rem 0 0;line-height:1.4;">${escapeHtml(s.value)}</p></div>`).join('')}
+        </div>
+        <p style="color:#64748b;font-size:.7rem;margin-top:.75rem;">${escapeHtml(d.footer||'')}</p>
+    </div>`;
+}
+
+function renderPoster(title, d) {
+    const colors = d.color_scheme || ['#ff6b6b','#ee5a24'];
+    return `<div style="background:linear-gradient(135deg,${colors[0]},${colors[1]});padding:2rem;text-align:center;min-height:280px;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+        <div style="font-size:2.5rem;margin-bottom:.75rem;">${d.category?_catIcon(d.category):'🛡️'}</div>
+        <h3 style="color:#fff;font-size:1.3rem;margin-bottom:.5rem;text-shadow:0 2px 8px rgba(0,0,0,0.3);">${escapeHtml(d.headline||title)}</h3>
+        <p style="color:rgba(255,255,255,0.9);font-size:1.1rem;font-weight:700;margin-bottom:.75rem;font-style:italic;">"${escapeHtml(d.tagline||'')}"</p>
+        <p style="color:rgba(255,255,255,0.8);font-size:.85rem;max-width:300px;line-height:1.5;">${escapeHtml(d.key_message||'')}</p>
+        <div style="margin-top:1rem;padding:.4rem 1rem;background:rgba(0,0,0,0.25);border-radius:20px;color:rgba(255,255,255,0.9);font-size:.75rem;">${escapeHtml(d.call_to_action||'')}</div>
+    </div>`;
+}
+
+function renderComic(title, d) {
+    const panels = d.panels || [];
+    return `<div style="padding:1.25rem;">
+        <h3 style="color:#fbbf24;font-size:1rem;margin-bottom:1rem;">📖 ${escapeHtml(title)}</h3>
+        <div style="display:grid;gap:.75rem;">
+            ${panels.map((p,i) => `<div style="display:flex;gap:.75rem;padding:.75rem;background:${i%2===0?'rgba(251,191,36,0.08)':'rgba(124,58,237,0.08)'};border-radius:10px;border:1px solid ${i%2===0?'rgba(251,191,36,0.15)':'rgba(124,58,237,0.15)'};">
+                <div style="font-size:1.5rem;flex-shrink:0;">${escapeHtml(p.character).split(' ')[0]}</div>
+                <div><div style="color:#fff;font-size:.85rem;font-weight:600;margin-bottom:.2rem;">${escapeHtml(p.character)}</div>
+                <p style="color:#e2e8f0;font-size:.85rem;margin:0;line-height:1.4;font-style:italic;">"${escapeHtml(p.dialogue)}"</p>
+                <p style="color:#64748b;font-size:.72rem;margin-top:.2rem;">${escapeHtml(p.scene)}</p></div>
+            </div>`).join('')}
+        </div>
+        <div style="text-align:center;margin-top:.75rem;color:#64748b;font-size:.75rem;">For ages ${d.age_group||'6-12'} • ${d.style||'child_friendly'}</div>
+    </div>`;
+}
+
+function renderStoryboard(title, d) {
+    const scenes = d.scenes || [];
+    return `<div style="padding:1.25rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;"><span style="font-size:1.3rem;">🎥</span><h3 style="color:#a78bfa;font-size:1rem;margin:0;">${escapeHtml(title)}</h3></div>
+        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:1rem;"><span style="color:#64748b;font-size:.8rem;">Duration: ${d.duration||'2-3 min'}</span></div>
+        <div style="position:relative;padding-left:1.5rem;">
+            <div style="position:absolute;left:.45rem;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#a78bfa,#7c3aed);border-radius:1px;"></div>
+            ${scenes.map(s => `<div style="position:relative;margin-bottom:1rem;padding-left:1rem;">
+                <div style="position:absolute;left:-1.3rem;top:.3rem;width:12px;height:12px;background:#a78bfa;border-radius:50%;border:2px solid #1e1b4b;"></div>
+                <div style="color:#a78bfa;font-size:.75rem;font-weight:600;margin-bottom:.2rem;">Scene ${s.scene} • ${s.duration}</div>
+                <div style="color:#fff;font-size:.85rem;margin-bottom:.2rem;">${escapeHtml(s.visual)}</div>
+                <p style="color:#94a3b8;font-size:.8rem;line-height:1.4;margin:0;font-style:italic;">${escapeHtml(s.narration).slice(0,150)}</p>
+            </div>`).join('')}
+        </div>
+    </div>`;
+}
+
+function renderQuizCard(title, d) {
+    const qs = d.questions || [];
+    const qid = 'oq_'+Math.random().toString(36).substr(2,6);
+    return `<div style="padding:1.25rem;">
+        <h3 style="color:#10b981;font-size:1rem;margin-bottom:1rem;">❓ ${escapeHtml(title)}</h3>
+        ${qs.map((q,i) => `<div style="margin-bottom:1rem;padding:.75rem;background:rgba(16,185,129,0.06);border-radius:10px;border:1px solid rgba(16,185,129,0.15);" id="${qid}_${i}">
+            <p style="color:#fff;font-size:.88rem;margin-bottom:.6rem;font-weight:500;">Q${i+1}. ${escapeHtml(q.question)}</p>
+            <div style="display:grid;gap:.4rem;">
+                ${(q.options||[]).map((o,oi) => `<button onclick="handleAwarenessQuiz(this,${oi===q.correct},'${qid}_${i}')" style="padding:.45rem .7rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#cbd5e1;font-size:.82rem;text-align:left;cursor:pointer;font-family:inherit;">${String.fromCharCode(65+oi)}. ${escapeHtml(o)}</button>`).join('')}
+            </div>
+            <div id="${qid}_${i}_fb" style="display:none;margin-top:.5rem;padding:.5rem;border-radius:6px;font-size:.82rem;"></div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderScenarioCard(title, d) {
+    const sc = d.scenario || {};
+    const sid = 'osc_'+Math.random().toString(36).substr(2,6);
+    return `<div style="padding:1.25rem;">
+        <h3 style="color:#f59e0b;font-size:1rem;margin-bottom:.75rem;">🎯 ${escapeHtml(title)}</h3>
+        <div style="padding:.75rem;background:rgba(245,158,11,0.08);border-radius:10px;border:1px solid rgba(245,158,11,0.15);margin-bottom:.75rem;">
+            <p style="color:#fff;font-size:.9rem;line-height:1.5;margin:0;">${escapeHtml(sc.situation||'')}</p>
+        </div>
+        <div style="display:grid;gap:.4rem;" id="${sid}_wrap">
+            ${(sc.choices||[]).map((c,i) => `<button onclick="handleAwarenessQuiz(this,${i===sc.correct},'${sid}_wrap')" style="padding:.5rem .75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#cbd5e1;font-size:.85rem;text-align:left;cursor:pointer;font-family:inherit;">${String.fromCharCode(65+i)}. ${escapeHtml(c)}</button>`).join('')}
+        </div>
+        <div id="${sid}_wrap_fb" style="display:none;margin-top:.5rem;padding:.5rem;border-radius:6px;font-size:.82rem;"></div>
+        ${sc.explanation?`<p style="color:#64748b;font-size:.78rem;margin-top:.5rem;font-style:italic;">💡 ${escapeHtml(sc.explanation)}</p>`:''}
+    </div>`;
+}
+
+function renderExecDash(title, d) {
+    const m = d.metrics || {};
+    const riskColors = {Critical:'#ef4444',High:'#f59e0b',Medium:'#3b82f6',Low:'#10b981'};
+    const riskColor = riskColors[d.risk_level] || '#3b82f6';
+    return `<div style="padding:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <h3 style="color:#00d4ff;font-size:1rem;margin:0;">📈 ${escapeHtml(d.threat_category||title)}</h3>
+            <span style="padding:.3rem .75rem;background:${riskColor}22;border:1px solid ${riskColor};border-radius:20px;color:${riskColor};font-size:.75rem;font-weight:600;">${d.risk_level||'Medium'} Risk</span>
+        </div>
+        <p style="color:#94a3b8;font-size:.85rem;line-height:1.5;margin-bottom:1rem;">${escapeHtml(d.summary||'')}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem;">
+            ${Object.entries(m).map(([k,v]) => `<div style="padding:.6rem;background:rgba(0,0,0,0.2);border-radius:8px;text-align:center;"><div style="color:#00d4ff;font-size:1.1rem;font-weight:700;">${escapeHtml(String(v))}</div><div style="color:#64748b;font-size:.7rem;">${escapeHtml(k.replace(/_/g,' '))}</div></div>`).join('')}
+        </div>
+        ${(d.recommendations||[]).length?`<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:.75rem;"><div style="color:#64748b;font-size:.75rem;margin-bottom:.4rem;">Recommendations:</div>${d.recommendations.map(r=>`<div style="color:#cbd5e1;font-size:.8rem;padding:.2rem 0;">• ${escapeHtml(r)}</div>`).join('')}</div>`:''}
+    </div>`;
+}
+
+function renderScript(title, d) {
+    const s = d.script || {};
+    return `<div style="padding:1.25rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;"><span style="font-size:1.2rem;">🎬</span><h3 style="color:#ec4899;font-size:1rem;margin:0;">${escapeHtml(title)}</h3></div>
+        <div style="color:#64748b;font-size:.78rem;margin-bottom:.75rem;">Duration: ${d.duration||'60-90 seconds'}</div>
+        ${['intro','body','conclusion'].map(k => s[k]?`<div style="padding:.6rem .75rem;background:rgba(236,72,153,0.06);border-radius:8px;margin-bottom:.5rem;border-left:2px solid #ec4899;"><p style="color:#e2e8f0;font-size:.85rem;line-height:1.5;margin:0;font-style:italic;">${escapeHtml(s[k])}</p></div>`:'').join('')}
+        ${(d.visual_notes||[]).length?`<div style="margin-top:.5rem;"><div style="color:#64748b;font-size:.75rem;margin-bottom:.3rem;">Visual notes:</div>${d.visual_notes.map(n=>`<div style="color:#94a3b8;font-size:.78rem;padding:.15rem 0;">🎞️ ${escapeHtml(n)}</div>`).join('')}</div>`:''}
+    </div>`;
+}
+
+function renderMicroLearn(title, d) {
+    return `<div style="padding:1.25rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;"><span style="font-size:1.2rem;">⚡</span><h3 style="color:#fbbf24;font-size:1rem;margin:0;">${escapeHtml(title)}</h3></div>
+        <div style="display:flex;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+            <span style="color:#64748b;font-size:.78rem;">⏱ ${d.duration||'2-3 min'}</span>
+            <span style="color:#64748b;font-size:.78rem;">📂 ${formatGenType(d.category||'')}</span>
+        </div>
+        <p style="color:#00d4ff;font-size:.85rem;margin-bottom:.75rem;font-weight:500;">🎯 ${escapeHtml(d.objective||'')}</p>
+        ${(d.key_points||[]).map(p => `<div style="padding:.4rem .6rem;background:rgba(251,191,36,0.06);border-radius:6px;margin-bottom:.35rem;border-left:2px solid #fbbf24;"><p style="color:#e2e8f0;font-size:.83rem;line-height:1.4;margin:0;">${escapeHtml(p)}</p></div>`).join('')}
+        <p style="color:#10b981;font-size:.82rem;margin-top:.75rem;">✅ ${escapeHtml(d.action_item||'')}</p>
+    </div>`;
+}
+
+function _catIcon(cat) {
+    const icons = {phishing:'🎣',ransomware:'🔒',social_engineering:'🎭',password_security:'🔑',data_privacy:'🛡️',zero_day_threats:'⚡'};
+    return icons[cat] || '🔐';
+}
+
 
 // Add points to user
 function addPoints(points) {
@@ -955,39 +1155,160 @@ function openModule(moduleName) {
     }
 }
 
-// Build HTML for structured awareness module (API response). Learning-only: no quizzes.
+// Build HTML for structured awareness module (API response). Rich interactive layout.
 function buildAwarenessModuleHTML(data) {
     const c = data.content || {};
     const sections = c.sections || [];
     const keyTakeaways = c.key_takeaways || data.key_takeaways || [];
-    let html = '<div class="module-content awareness-module">';
-    html += '<p class="target-audience">' + escapeHtml(data.target_audience || '') + '</p>';
-    html += '<p class="learning-objective">' + escapeHtml(data.learning_objective || '') + '</p>';
-    sections.forEach((sec) => {
-        html += '<div class="lesson-section awareness-section">';
-        html += '<h3>' + escapeHtml(sec.section_title || '') + '</h3>';
-        html += '<p>' + escapeHtml(sec.concept_explanation || '') + '</p>';
+    const quizMcqs = c.quiz_mcqs || data.quiz_mcqs || [];
+    const scenarioQ = c.scenario_question || data.scenario_question || null;
+    const sectionIcons = ['🛡️','⚔️','🔍','🚨','🧠','💡','🎯','📊','🔒','🌐'];
+    const sectionColors = ['#00d4ff','#a78bfa','#f59e0b','#ef4444','#10b981','#3b82f6','#ec4899','#8b5cf6','#14b8a6','#f97316'];
+
+    let html = '<div class="module-content awareness-module" style="max-width:800px;margin:0 auto;">';
+
+    // Header badge
+    html += `<div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(0,212,255,0.2);border-radius:12px;margin-bottom:1.5rem;">
+        <div style="width:48px;height:48px;background:linear-gradient(135deg,#00d4ff,#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">📚</div>
+        <div>
+            <p style="color:#94a3b8;font-size:.85rem;margin:0;">${escapeHtml(data.target_audience || '')}</p>
+            <p style="color:#00d4ff;font-weight:600;font-size:.95rem;margin:.25rem 0 0 0;">🎯 ${escapeHtml(data.learning_objective || '')}</p>
+        </div>
+    </div>`;
+
+    // Progress indicator
+    const totalSteps = sections.length + (quizMcqs.length > 0 ? 1 : 0) + (scenarioQ ? 1 : 0);
+    html += `<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1.5rem;padding:.5rem 0;">
+        <span style="color:#64748b;font-size:.8rem;">Progress:</span>
+        <div style="flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+            <div style="width:0%;height:100%;background:linear-gradient(90deg,#00d4ff,#7c3aed);border-radius:3px;transition:width .5s;" id="awarenessProgress"></div>
+        </div>
+        <span style="color:#64748b;font-size:.8rem;">${totalSteps} sections</span>
+    </div>`;
+
+    // Content sections - rich cards
+    sections.forEach((sec, i) => {
+        const icon = sectionIcons[i % sectionIcons.length];
+        const color = sectionColors[i % sectionColors.length];
+        html += `<div class="awareness-section" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;border-left:3px solid ${color};transition:all .2s;" onmouseenter="this.style.borderColor='${color}';this.style.background='rgba(255,255,255,0.05)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
+            <h3 style="display:flex;align-items:center;gap:.5rem;color:#fff;font-size:1.1rem;margin-bottom:.75rem;">${icon} ${escapeHtml(sec.section_title || '')}</h3>
+            <p style="color:#cbd5e1;line-height:1.7;font-size:.95rem;">${escapeHtml(sec.concept_explanation || '')}</p>`;
+
         if (sec.real_world_example) {
-            html += '<div class="real-world-example">';
-            html += '<h4>Real-world example</h4><p>' + escapeHtml(sec.real_world_example) + '</p></div>';
+            html += `<div style="margin-top:1rem;padding:1rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
+                <h4 style="color:#fca5a5;font-size:.9rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem;">⚠️ Real-World Example</h4>
+                <p style="color:#e2e8f0;font-size:.9rem;line-height:1.6;margin:0;">${escapeHtml(sec.real_world_example)}</p>
+            </div>`;
         }
-        if (sec.how_attack_works) html += '<p><strong>How the attack works:</strong> ' + escapeHtml(sec.how_attack_works) + '</p>';
-        if (sec.warning_signs) html += '<p><strong>Warning signs:</strong> ' + escapeHtml(sec.warning_signs) + '</p>';
-        if (sec.how_to_prevent) html += '<p><strong>How to prevent it:</strong> ' + escapeHtml(sec.how_to_prevent) + '</p>';
+
+        // Attack info grid
+        const infoItems = [];
+        if (sec.how_attack_works) infoItems.push({label:'How it works', text:sec.how_attack_works, icon:'⚙️', color:'#f59e0b'});
+        if (sec.warning_signs) infoItems.push({label:'Warning signs', text:sec.warning_signs, icon:'🚩', color:'#ef4444'});
+        if (sec.how_to_prevent) infoItems.push({label:'How to prevent', text:sec.how_to_prevent, icon:'✅', color:'#10b981'});
+
+        if (infoItems.length > 0) {
+            html += '<div style="display:grid;gap:.75rem;margin-top:1rem;">';
+            infoItems.forEach(item => {
+                html += `<div style="padding:.75rem 1rem;background:rgba(255,255,255,0.03);border-radius:8px;border-left:2px solid ${item.color};">
+                    <strong style="color:${item.color};font-size:.85rem;">${item.icon} ${item.label}:</strong>
+                    <p style="color:#94a3b8;font-size:.88rem;line-height:1.5;margin:.25rem 0 0 0;">${escapeHtml(item.text)}</p>
+                </div>`;
+            });
+            html += '</div>';
+        }
         html += '</div>';
     });
+
+    // Risk awareness
     const riskScoreLogic = c.risk_score_logic || data.risk_score_logic;
     if (riskScoreLogic) {
-        html += '<div class="lesson-section"><h4>Personal risk awareness</h4><p>' + escapeHtml(riskScoreLogic) + '</p></div>';
+        html += `<div style="padding:1.25rem;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(239,68,68,0.1));border:1px solid rgba(245,158,11,0.2);border-radius:12px;margin-bottom:1.25rem;">
+            <h4 style="color:#fbbf24;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem;">📊 Personal Risk Awareness</h4>
+            <p style="color:#cbd5e1;font-size:.9rem;line-height:1.6;margin:0;">${escapeHtml(riskScoreLogic)}</p>
+        </div>`;
     }
+
+    // Key takeaways
     if (keyTakeaways.length) {
-        html += '<div class="lesson-section key-takeaways"><h4>Key takeaways</h4><ul>';
-        keyTakeaways.forEach(t => { html += '<li>' + escapeHtml(t) + '</li>'; });
-        html += '</ul></div>';
+        html += `<div style="padding:1.25rem;background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(0,212,255,0.05));border:1px solid rgba(16,185,129,0.2);border-radius:12px;margin-bottom:1.5rem;">
+            <h4 style="color:#34d399;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem;">💡 Key Takeaways</h4>
+            <div style="display:grid;gap:.5rem;">`;
+        keyTakeaways.forEach((t,i) => {
+            html += `<div style="display:flex;align-items:flex-start;gap:.5rem;padding:.4rem 0;">
+                <span style="color:#10b981;font-size:.9rem;flex-shrink:0;">✓</span>
+                <span style="color:#e2e8f0;font-size:.9rem;line-height:1.5;">${escapeHtml(t)}</span>
+            </div>`;
+        });
+        html += '</div></div>';
     }
+
+    // MCQ Quiz section
+    if (quizMcqs.length > 0) {
+        html += `<div style="padding:1.5rem;background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(0,212,255,0.05));border:1px solid rgba(124,58,237,0.25);border-radius:14px;margin-bottom:1.25rem;">
+            <h3 style="color:#a78bfa;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">🧠 Test Your Knowledge</h3>`;
+        quizMcqs.forEach((q, qi) => {
+            const qid = 'aq_' + qi + '_' + Math.random().toString(36).substr(2,5);
+            html += `<div style="margin-bottom:1.25rem;padding:1rem;background:rgba(0,0,0,0.2);border-radius:10px;" id="${qid}_wrap">
+                <p style="color:#fff;font-weight:500;margin-bottom:.75rem;font-size:.95rem;">Q${qi+1}. ${escapeHtml(q.question || q.q || '')}</p>
+                <div style="display:grid;gap:.5rem;">`;
+            const opts = q.options || q.o || [];
+            const correctIdx = q.correct_answer !== undefined ? q.correct_answer : (q.correct !== undefined ? q.correct : q.c);
+            opts.forEach((opt, oi) => {
+                html += `<button onclick="handleAwarenessQuiz(this,${oi === correctIdx},'${qid}_wrap')" style="padding:.6rem .9rem;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;color:#e2e8f0;font-size:.88rem;text-align:left;cursor:pointer;transition:all .2s;font-family:inherit;" onmouseenter="this.style.borderColor='#a78bfa'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.12)'">${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}</button>`;
+            });
+            html += `</div><div id="${qid}_fb" style="display:none;margin-top:.75rem;padding:.75rem;border-radius:8px;font-size:.88rem;"></div></div>`;
+        });
+        html += '</div>';
+    }
+
+    // Scenario question
+    if (scenarioQ) {
+        const sid = 'ascen_' + Math.random().toString(36).substr(2,5);
+        html += `<div style="padding:1.5rem;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(239,68,68,0.05));border:1px solid rgba(245,158,11,0.25);border-radius:14px;margin-bottom:1.25rem;">
+            <h3 style="color:#fbbf24;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;">🎯 Scenario Challenge</h3>
+            <p style="color:#fff;font-weight:500;margin-bottom:.75rem;font-size:.95rem;line-height:1.5;">${escapeHtml(scenarioQ.scenario || scenarioQ.question || '')}</p>
+            <div style="display:grid;gap:.5rem;" id="${sid}_wrap">`;
+        const sOpts = scenarioQ.options || scenarioQ.o || [];
+        const sCorrect = scenarioQ.correct_answer !== undefined ? scenarioQ.correct_answer : (scenarioQ.correct !== undefined ? scenarioQ.correct : scenarioQ.c);
+        sOpts.forEach((opt, oi) => {
+            html += `<button onclick="handleAwarenessQuiz(this,${oi === sCorrect},'${sid}_wrap')" style="padding:.6rem .9rem;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;color:#e2e8f0;font-size:.88rem;text-align:left;cursor:pointer;transition:all .2s;font-family:inherit;" onmouseenter="this.style.borderColor='#fbbf24'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.12)'">${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}</button>`;
+        });
+        html += `</div><div id="${sid}_fb" style="display:none;margin-top:.75rem;padding:.75rem;border-radius:8px;font-size:.88rem;"></div></div>`;
+    }
+
+    // CTA
+    html += `<div style="text-align:center;padding:1.5rem;background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(124,58,237,0.08));border:1px solid rgba(0,212,255,0.15);border-radius:14px;">
+        <h4 style="color:#00d4ff;margin-bottom:.5rem;">🎮 Practice What You Learned!</h4>
+        <p style="color:#94a3b8;font-size:.88rem;margin-bottom:1rem;">Play the Cyber Snake & Ladder game to reinforce these concepts</p>
+        <button onclick="closeModule();startGame('snake-ladder');" style="padding:.7rem 2rem;background:linear-gradient(135deg,#00d4ff,#7c3aed);border:none;border-radius:50px;color:#fff;font-weight:600;cursor:pointer;font-size:.9rem;font-family:inherit;transition:all .2s;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'"><i class="fas fa-gamepad"></i> Play Snake & Ladder</button>
+    </div>`;
+
     html += '</div>';
     return html;
 }
+
+// Handle awareness module inline quiz answers
+window.handleAwarenessQuiz = function(btn, isCorrect, wrapId) {
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+    wrap.querySelectorAll('button').forEach(b => { b.style.pointerEvents = 'none'; b.style.opacity = '0.5'; });
+    btn.style.opacity = '1';
+    btn.style.borderColor = isCorrect ? '#10b981' : '#ef4444';
+    btn.style.background = isCorrect ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
+    const fbId = wrapId.replace('_wrap','_fb');
+    const fb = document.getElementById(fbId);
+    if (fb) {
+        fb.style.display = 'block';
+        fb.style.background = isCorrect ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+        fb.style.border = `1px solid ${isCorrect ? '#10b981' : '#ef4444'}`;
+        fb.innerHTML = isCorrect
+            ? '<span style="color:#34d399;">✅ Correct! Great job!</span>'
+            : '<span style="color:#fca5a5;">❌ Not quite. Review the content above and try to understand why.</span>';
+    }
+    if (isCorrect && typeof addPoints === 'function') addPoints(25);
+};
+
 
 function escapeHtml(text) {
     if (text == null) return '';
@@ -1729,9 +2050,9 @@ function encryptMessage() {
 // Game context data - Why This Matters
 const gameContext = {
     'snake-ladder': {
-        whyMatters: 'Learning cybersecurity through interactive gameplay makes complex concepts easier to understand and remember.',
-        realWorldImpact: 'Gamified learning increases retention by 40% compared to traditional methods.',
-        quickTip: 'Answer questions correctly to advance faster on the board!'
+        whyMatters: 'Cybersecurity is a decision game in real life. This board turns those decisions into repeatable practice under pressure.',
+        realWorldImpact: 'Teams that rehearse threat scenarios improve response quality and make fewer risky clicks during real incidents.',
+        quickTip: 'Build answer streaks for combo points, and finish mission questions before the race to tile 100 ends.'
     },
     'caesar-cipher': {
         whyMatters: 'Understanding basic encryption helps you appreciate how modern security protects your data.',
